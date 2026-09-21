@@ -1,10 +1,10 @@
-import Landingpage from './components/landing';
+import Landingpage from './screens/landing';
 import { BottomNavigation } from 'react-native-paper';
 import { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Profile from './components/profile';
-import Cars from './components/cars';
-import Bookings from './components/bookings';
+import Profile from './screens/profile';
+import Cars from './screens/cars';
+import Bookings from './screens/bookings';
 
 export default function App() {
   const [index, setIndex] = useState(0);
