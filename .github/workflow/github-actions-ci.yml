@@ -1,0 +1,21 @@
+name: Main workflow
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  Unit-Tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ['24.x']
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v7
+      with:
+        node-version: ${{ matrix.node-version }}
