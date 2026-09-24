@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Profile from './components/profile';
 import Cars from './components/cars';
+import Login from './components/login';
 import Bookings from './components/bookings';
 
 export default function App() {
@@ -16,7 +17,7 @@ export default function App() {
 
   const renderScene = BottomNavigation.SceneMap({
     search: Landingpage,
-    profile: Profile,
+    profile: Login, //Profile,
     bookings: Bookings,
   });
 
