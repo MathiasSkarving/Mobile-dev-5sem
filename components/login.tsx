@@ -2,11 +2,14 @@ import { Button, Text, TextInput} from 'react-native-paper';
 import { View, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProfileStackParamList } from '../navigation/types';
+
 
 export default function Login() {
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
 
     return (
         <SafeAreaView>
