@@ -1,5 +1,5 @@
-import {Button, Text, Avatar, Icon} from 'react-native-paper'
-import {View, Dimensions} from 'react-native'
+import { Button, Text, Avatar} from 'react-native-paper'
+import { Dimensions} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Profile() {
