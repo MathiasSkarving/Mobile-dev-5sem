@@ -1,11 +1,14 @@
 import { Button, Text, Avatar} from 'react-native-paper'
 import { Dimensions} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../auth/authContent';
 
 export default function Profile() {
 
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
+
+    const { logOut } = useAuth();
 
     return (
         <SafeAreaView>
@@ -17,7 +20,7 @@ export default function Profile() {
             style={{alignSelf: 'center', marginTop: windowHeight * 0.05, width: windowWidth * 0.5}}>
                 Edit Profile
             </Button>
-            <Button mode="contained" icon="logout" onPress={() => console.log('Logout')} 
+            <Button mode="contained" icon="logout" onPress={logOut} 
             style={{alignSelf: 'center', marginTop: windowHeight * 0.02, width: windowWidth * 0.5}}>
                 Logout
             </Button>
