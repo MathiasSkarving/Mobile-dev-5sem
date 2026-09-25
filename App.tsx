@@ -4,10 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Profile from './components/profile';
 import Bookings from './components/bookings';
-import { connectToDatabase, createTables } from './db/db';
-import { DbProvider } from './db/DBContext';
-
-console.log({ Landingpage, Profile, Bookings, DbProvider, SafeAreaProvider, BottomNavigation })
+import { migrateDbIfNeeded } from './db/db';
+import { SQLiteProvider } from 'expo-sqlite';
 
 export default function App() {
   const [index, setIndex] = useState(0);
@@ -24,7 +22,7 @@ export default function App() {
   });
 
   return (
-    <DbProvider>
+    <SQLiteProvider databaseName="myapp.db" onInit={migrateDbIfNeeded}>
       <SafeAreaProvider>
         <BottomNavigation
           navigationState={{ index, routes }}
@@ -32,6 +30,6 @@ export default function App() {
           renderScene={renderScene}
         />
       </SafeAreaProvider>
-    </DbProvider>
+    </SQLiteProvider>
   );
 }

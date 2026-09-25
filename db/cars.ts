@@ -6,34 +6,39 @@ export const addCar = async (
     db: SQLite.SQLiteDatabase,
     car: NewCar
 ) => {
-    const insertQuery = `
-        INSERT INTO Cars (name, price)
-        VALUES (?, ?)
-    `
+    const insertQuery = await db.prepareAsync( `
+        INSERT INTO cars (make, model, price_per_day, electric)
+        VALUES (?, ?, ?, ?)
+    `);
 
-    const values = [car.carName, car.pricePerDay]
+    const values = [car.make, car.model, car.price_per_day, car.electric];
 
     try {
-        return await db.runAsync(insertQuery, values)
+        return await insertQuery.executeAsync(values);
     } catch (error) {
         console.error(error)
         throw Error("Failed to add car")
+    } finally {
+        insertQuery.finalizeAsync();
     }
 }
 
 export const getCars = async (
     db: SQLite.SQLiteDatabase,
 ): Promise<Car[]> => {
-    const query = `
-        SELECT id, name AS carName, price AS pricePerDay
-        FROM Cars
-    `
+    const query = await db.prepareAsync(`
+        SELECT id, make, model, price_per_day, electric
+        FROM cars
+    `);
 
     try {
-        return await db.getAllAsync<Car>(query)
+        const result = await query.executeAsync<Car>();
+        return await result.getAllAsync();
     } catch (error) {
         console.error(error)
         throw Error("Failed to get cars from database")
+    } finally {
+        await query.finalizeAsync();
     }
 }
 
@@ -41,16 +46,18 @@ export const deleteCar = async (
     db: SQLite.SQLiteDatabase,
     id: number
 ) => {
-    const deleteQuery = `
-        DELETE FROM Cars
+    const deleteQuery = await db.prepareAsync( `
+        DELETE FROM cars
         WHERE id = ?
-    `
+    `);
 
     try {
-        return await db.runAsync(deleteQuery, [id])
+        return await deleteQuery.executeAsync(id);
     } catch (error) {
         console.error(error)
         throw Error("Failed to remove car")
+    } finally {
+        await deleteQuery.finalizeAsync();
     }
 }
 
@@ -58,22 +65,25 @@ export const updateCar = async (
     db: SQLite.SQLiteDatabase,
     updatedCar: Car
 ) => {
-    const updateQuery = `
-        UPDATE Cars
-        SET name = ?, price = ?
+    const updateQuery = await db.prepareAsync( `
+        UPDATE cars
+        SET make = ?, model = ?, price_per_day = ?
         WHERE id = ?
-    `
+    `);
 
     const values = [
-        updatedCar.carName,
-        updatedCar.pricePerDay,
+        updatedCar.make,
+        updatedCar.model,
+        updatedCar.price_per_day,
         updatedCar.id,
-    ]
+    ];
 
     try {
-        return await db.runAsync(updateQuery, values)
+        return await updateQuery.executeAsync(values);
     } catch (error) {
         console.error(error)
-        throw Error("Failed to update car")
+        throw Error("Failed to update car");
+    } finally {
+        await updateQuery.finalizeAsync();
     }
 }

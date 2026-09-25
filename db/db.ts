@@ -1,53 +1,44 @@
-import * as SQLite from "expo-sqlite"
+import { type SQLiteDatabase } from 'expo-sqlite';
 
-import { Table } from "./types"
+export async function migrateDbIfNeeded(db: SQLiteDatabase) {
+    const DATABASE_VERSION = 0;
 
-export const createTables = async (db: SQLite.SQLiteDatabase) => {
-    const carTableQuery = `
-        CREATE TABLE IF NOT EXISTS Cars (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            price FLOAT
-        )
-    `
+    const result = await db.getFirstAsync<{ user_version: number }>(
+        'PRAGMA user_version'
+    );
 
-    try {
-        await db.execAsync(carTableQuery)
-    } catch (error) {
-        console.error(error)
-        throw Error("Failed to create tables")
+    let currentDbVersion = result?.user_version ?? 0;
+    console.log('Current DB version:', currentDbVersion);
+    if (currentDbVersion >= DATABASE_VERSION) {
+        return;
     }
-}
 
-export const getTableNames = async (
-    db: SQLite.SQLiteDatabase
-): Promise<string[]> => {
-    try {
-        const results = await db.getAllAsync<{ name: string }>(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-        )
+    // Initial database setup
+    if (currentDbVersion === 0) {
+        console.log('Migrating to version 1');
+        await db.execAsync(`
+            PRAGMA journal_mode = 'wal';
+            CREATE TABLE IF NOT EXISTS cars (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                make TEXT NOT NULL,
+                model TEXT NOT NULL,
+                price_per_day NUMBER NOT NULL DEFAULT 0,
+                electric BOOLEAN
+            );
+        `);
 
-        return results.map(result => result.name)
-    } catch (error) {
-        console.error(error)
-        throw Error("Failed to get table names from database")
+        await db.execAsync(`
+            PRAGMA journal_mode = 'wal';
+            CREATE TABLE IF NOT EXISTS images (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                FOREIGN KEY (car_id) REFERENCES cars(id),
+                url TEXT,
+            );
+        `);
+
+        currentDbVersion = 1;
     }
-}
 
-export const removeTable = async (
-    db: SQLite.SQLiteDatabase,
-    tableName: Table
-) => {
-    const query = `DROP TABLE IF EXISTS ${tableName}`
-
-    try {
-        await db.execAsync(query)
-    } catch (error) {
-        console.error(error)
-        throw Error(`Failed to drop table ${tableName}`)
-    }
-}
-
-export const connectToDatabase = async () => {
-    return await SQLite.openDatabaseAsync("ogcarrentaldatabase.db")
+    // Update database version
+    await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
