@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { Button, Text, Card } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 
-import { getCars, addCar } from '../db/cars';
+import { getCars, addCar } from '../db/dbcars';
 import { Car } from '../db/types';
+import { useDatabase } from '../db/dbprovider';
 
 const STATIC_CARS = [
     { make: 'Tesla', model: 'Model 3', price_per_day: 45, electric: true },
@@ -14,12 +15,13 @@ const STATIC_CARS = [
 ];
 
 export default function Cars() {
-    const db = useSQLiteContext();
+    const db = useDatabase();
     const [cars, setCars] = useState<Car[]>([]);
     const [loading, setLoading] = useState(true);
 
     const loadCars = useCallback(async () => {
         const result = await getCars(db);
+        console.log('Cars fetched:', result);
         setCars(result);
     }, [db]);
 
@@ -27,6 +29,7 @@ export default function Cars() {
         (async () => {
             try {
                 const existing = await getCars(db);
+                console.log('Existing cars:', existing);
                 if (existing.length === 0) {
                     for (const car of STATIC_CARS) {
                         await addCar(db, car);
@@ -50,16 +53,17 @@ export default function Cars() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <Text variant="titleLarge" style={styles.title}>
                 These are the cars:
             </Text>
             <FlatList
                 data={cars}
                 keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={styles.list}
+                style={styles.list}
+                contentContainerStyle={styles.listContent}
                 renderItem={({ item }) => (
-                    <Card style={styles.card}>
+                    <Card mode='outlined'>
                         <Card.Content>
                             <Text variant="titleMedium">
                                 {item.make} {item.model}
@@ -71,13 +75,13 @@ export default function Cars() {
                     </Card>
                 )}
             />
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 16 },
     title: { marginBottom: 12 },
-    list: { gap: 8 },
-    card: { marginBottom: 8 },
+    list: { flex: 1 },              // ← the actual fix
+    listContent: { gap: 8 },        // renamed from your old `list`
 });

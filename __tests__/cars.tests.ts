@@ -5,7 +5,7 @@ import {
     getCars,
     updateCar,
     deleteCar,
-} from '../db/cars'
+} from '../db/dbcars'
 
 describe("Cars database functions", () => {
     let db: SQLite.SQLiteDatabase

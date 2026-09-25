@@ -1,7 +1,7 @@
 import { type SQLiteDatabase } from 'expo-sqlite';
 
-export async function migrateDbIfNeeded(db: SQLiteDatabase) {
-    const DATABASE_VERSION = 0;
+export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
+    const DATABASE_VERSION = 3;
 
     const result = await db.getFirstAsync<{ user_version: number }>(
         'PRAGMA user_version'
@@ -18,6 +18,8 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         console.log('Migrating to version 1');
         await db.execAsync(`
             PRAGMA journal_mode = 'wal';
+            PRAGMA foreign_keys = 'ON';
+
             CREATE TABLE IF NOT EXISTS cars (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 make TEXT NOT NULL,
@@ -28,11 +30,11 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         `);
 
         await db.execAsync(`
-            PRAGMA journal_mode = 'wal';
             CREATE TABLE IF NOT EXISTS images (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                FOREIGN KEY (car_id) REFERENCES cars(id),
-                url TEXT,
+                url TEXT NOT NULL,
+                car_id INTEGER NOT NULL,
+                FOREIGN KEY (car_id) REFERENCES cars(id)
             );
         `);
 

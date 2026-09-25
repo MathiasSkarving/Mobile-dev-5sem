@@ -10,6 +10,8 @@ import Bookings from './components/bookings';
 import { ProfileStackParamList } from './navigation/types';
 import { SQLiteProvider } from 'expo-sqlite';
 import { migrateDbIfNeeded } from './db/db';
+import { View } from 'react-native';
+import { DatabaseProvider } from './db/dbprovider';
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -37,18 +39,20 @@ export default function App() {
   ]);
 
   return (
-    <SQLiteProvider databaseName="myapp.db" onInit={migrateDbIfNeeded}>
-      <SafeAreaProvider>
-      <PaperProvider>
-        <NavigationContainer>
-            <BottomNavigation
-              navigationState={{ index, routes }}
-              onIndexChange={setIndex}
-              renderScene={renderScene}
-            />
-        </NavigationContainer>
-      </PaperProvider>
-      </SafeAreaProvider>
-    </SQLiteProvider>
+    <PaperProvider>
+      <DatabaseProvider>
+        <SafeAreaProvider style={{ flex: 1 }}>
+          <NavigationContainer>
+            <View style={{ flex: 1 }}>
+              <BottomNavigation
+                navigationState={{ index, routes }}
+                onIndexChange={setIndex}
+                renderScene={renderScene}
+              />
+            </View>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </DatabaseProvider>
+    </PaperProvider >
   );
 }

@@ -1,15 +1,17 @@
-import {Button, TextInput} from 'react-native-paper'
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {DatePickerModal, enGB, registerTranslation} from 'react-native-paper-dates';
-import {useCallback, useState} from 'react';
+import { Button, TextInput } from 'react-native-paper'
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { DatePickerModal, enGB, registerTranslation } from 'react-native-paper-dates';
+import { useCallback, useState } from 'react';
 import Cars from "./cars";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CarsStackParamList } from '../navigation/types';
+import { useNavigation } from '@react-navigation/native';
 
 interface DateRange {
     startDate: Date | undefined;
     endDate: Date | undefined;
 }
 
-/** Utility function to format the selected dates. */
 function formatDateRange(range: DateRange): string {
     const formatter = new Intl.DateTimeFormat('en-GB', {
         day: "2-digit",
@@ -19,44 +21,29 @@ function formatDateRange(range: DateRange): string {
     return formatter.format(range.startDate) + " - " + formatter.format(range.endDate);
 }
 
+registerTranslation("en", enGB); // moved out of component body, runs once
+
 export default function Search() {
+    const navigation = useNavigation<NativeStackNavigationProp<CarsStackParamList>>();
 
-    // The date range selected by the user through the date picker modal
-    const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(
-        undefined
-    );
-
-    const [datePickerModalVisible, setDatePickerModalVisible] = useState<boolean>(
-        false
-    );
+    const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(undefined);
+    const [datePickerModalVisible, setDatePickerModalVisible] = useState<boolean>(false);
 
     const onDismiss = useCallback(() => {
-            // Close the modal.
-            setDatePickerModalVisible(false);
-        }, [setDatePickerModalVisible]
-    );
+        setDatePickerModalVisible(false);
+    }, []);
 
     const onConfirm = useCallback((range: DateRange) => {
-            // Close the modal and save the selected date range.
-            setDatePickerModalVisible(false);
-            setSelectedDateRange(range);
-        },
-        [setDatePickerModalVisible, setSelectedDateRange]
-    );
-
-    // Fixes " WARN [react-native-paper-dates] The locale en is not registered... https://github.com/xgfe/react-native-datepicker/issues/473#issuecomment-1927492425"
-    registerTranslation("en", enGB);
+        setDatePickerModalVisible(false);
+        setSelectedDateRange(range);
+    }, []);
 
     return (
-        <SafeAreaView>
-
-            <TextInput placeholder="Search Cars"/>
+        <SafeAreaView style={{ flex: 1 }}>
+            <TextInput placeholder="Search Cars" />
 
             <Button onPress={() => setDatePickerModalVisible(true)} uppercase={false} mode="outlined">
-                {selectedDateRange ?
-                    formatDateRange(selectedDateRange)
-                    : 'Select date range'
-                }
+                {selectedDateRange ? formatDateRange(selectedDateRange) : 'Select date range'}
             </Button>
 
             <DatePickerModal
@@ -68,13 +55,10 @@ export default function Search() {
                 startDate={selectedDateRange?.startDate}
                 endDate={selectedDateRange?.endDate}
                 onConfirm={onConfirm}
-                validRange={{
-                    startDate: new Date()
-                }}
+                validRange={{ startDate: new Date() }}
             />
 
-            <Cars/>
-
+            <Cars />
         </SafeAreaView>
     );
 }
