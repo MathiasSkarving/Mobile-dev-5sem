@@ -3,7 +3,7 @@ import { BottomNavigation, PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Landingpage from './components/landing';
+import Search from './components/search';
 import Login from './components/login';
 import SignupScreen from './components/signup';
 import Bookings from './components/bookings';
@@ -21,7 +21,7 @@ function ProfileTab() {
 }
 
 const renderScene = BottomNavigation.SceneMap({
-  search: Landingpage,
+  search: Search,
   profile: ProfileTab,
   bookings: Bookings,
 });
