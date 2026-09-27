@@ -1,6 +1,8 @@
 import { Button, Card, Chip, Divider, List, Text, } from 'react-native-paper'
 import { Image, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useState } from 'react'
+import { useFocusEffect } from '@react-navigation/native'
 
 interface CheckoutProps {
     carImage: string
@@ -35,15 +37,28 @@ const styles = StyleSheet.create({
     },
 })
 
-export default function Checkout() {//{ carImage, carName, carPrice, startDate, endDate }: CheckoutProps) {
-    const carImage = '../assets/icon.png'
-    const carName = 'Citroën C3'
+export default function Checkout({ carImage, carName, carPrice, startDate, endDate }: CheckoutProps) {
+    /*const carImage = "../assets/icon.png"
+    const carName = "Citroën C3"
     const carPrice = 100
-    const startDate = "2026-09-28"
-    const endDate = "2026-10-05"
+    const startDate = "2026-09-27"
+    const endDate = "2026-10-02"*/
 
-    const days = 8
-    const total = carPrice * days
+    const [days, setDays] = useState(0)
+    const [total, setTotal] = useState(0)
+
+    function calculateTotal() {
+        // startDate and endDate should probably be Date types from the beginning
+        const start = new Date(startDate)
+        const end = new Date(endDate)
+        const rentalDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86_400_000))
+        setDays(rentalDays)
+        setTotal(carPrice * rentalDays)
+    }
+
+    useFocusEffect(() => {
+        calculateTotal()
+    })
 
     return (
         <SafeAreaView style={styles.container}>
@@ -53,17 +68,10 @@ export default function Checkout() {//{ carImage, carName, carPrice, startDate, 
                         <View style={styles.carRow}>
                             <Image
                                 style={styles.carImage}
-                                source={require('../assets/icon.png')}
+                                source={require(carImage)}
                             />
                             <View style={styles.info}>
                                 <Text variant="titleLarge">{carName}</Text>
-                                <Chip
-                                    icon="check-circle"
-                                    //mode="outlined"
-                                    style={{ marginTop: 8 }}
-                                >
-                                    Available
-                                </Chip>
                             </View>
                         </View>
                         <Divider style={{ marginVertical: 12 }} />
