@@ -48,7 +48,7 @@ export default function Search() {
     registerTranslation("en", enGB);
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{flex: 1}}>
 
             <TextInput placeholder="Search Cars"/>
 

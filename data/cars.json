@@ -1,0 +1,38 @@
+[
+    {
+        "id": "1",
+        "name": "For sure federe end Emils bil",
+        "pricePerDay": 449,
+        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Volkswagen_Golf_VIII_Facelift_IMG_8947.jpg?width=800"
+    },
+    {
+        "id": "2",
+        "name": "Også federe end Emils bil",
+        "pricePerDay": 349,
+        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/2024_Toyota_Yaris_Hybrid_130_(XP210)_IMG_9910.jpg?width=800"
+    },
+    {
+        "id": "3",
+        "name": "Claude Mythos hacker den her så vi kører galt",
+        "pricePerDay": 799,
+        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Tesla_Model_3_(2023)_IMG_9488.jpg?width=800"
+    },
+    {
+        "id": "4",
+        "name": "Hvorfor er databasen ikke sat op? Jeg hader JSON",
+        "pricePerDay": 499,
+        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Skoda_Octavia_IV_Combi_IMG_3099.jpg?width=800"
+    },
+    {
+        "id": "5",
+        "name": "Skulle have brugt XML....",
+        "pricePerDay": 379,
+        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/2019_Peugeot_208_GT_Line_PureTech_Automatic_1.2_Front.jpg?width=800"
+    },
+    {
+        "id": "6",
+        "name": "Hvorfor er ting pushet til main gennem PR uden LGTM??",
+        "pricePerDay": 899,
+        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/BMW_G20_IMG_0167.jpg?width=800"
+    }
+]
