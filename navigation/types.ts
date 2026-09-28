@@ -6,4 +6,4 @@ export type ProfileStackParamList = {
 export type CarsStackParamList = {
   Search: undefined;
   Cars: undefined;
-}
+};

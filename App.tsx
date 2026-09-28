@@ -6,20 +6,30 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Search from './components/search';
 import Login from './components/login';
 import SignupScreen from './components/signup';
+import Profile from './components/profile';
 import Bookings from './components/bookings';
 import { ProfileStackParamList } from './navigation/types';
 import { SQLiteProvider } from 'expo-sqlite';
 import { migrateDbIfNeeded } from './db/db';
 import { View } from 'react-native';
 import { DatabaseProvider } from './db/dbprovider';
+import { AuthProvider, useAuth } from './auth/authContent';
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 function ProfileTab() {
+  const { isLoggedIn } = useAuth();
+
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
-      <ProfileStack.Screen name="Login" component={Login} />
-      <ProfileStack.Screen name="Signup" component={SignupScreen} />
+      {isLoggedIn ? (
+        <ProfileStack.Screen name="Profile" component={Profile} />
+      ) : (
+        <>
+          <ProfileStack.Screen name="Login" component={Login} />
+          <ProfileStack.Screen name="Signup" component={SignupScreen} />
+        </>
+      )}
     </ProfileStack.Navigator>
   );
 }
