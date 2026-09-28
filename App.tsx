@@ -9,6 +9,10 @@ import SignupScreen from './components/signup';
 import Profile from './components/profile';
 import Bookings from './components/bookings'; 
 import { ProfileStackParamList } from './navigation/types';
+import { SQLiteProvider } from 'expo-sqlite';
+import { migrateDbIfNeeded } from './db/db';
+import { View } from 'react-native';
+import { DatabaseProvider } from './db/dbprovider';
 import { AuthProvider, useAuth } from './auth/authContent';
 
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
@@ -45,18 +49,20 @@ export default function App() {
   ]);
 
   return (
-    <SafeAreaProvider>
-      <PaperProvider>
-        <AuthProvider>
+    <PaperProvider>
+      <DatabaseProvider>
+        <SafeAreaProvider style={{ flex: 1 }}>
           <NavigationContainer>
-            <BottomNavigation
-              navigationState={{ index, routes }}
-              onIndexChange={setIndex}
-              renderScene={renderScene}
-            />
+            <View style={{ flex: 1 }}>
+              <BottomNavigation
+                navigationState={{ index, routes }}
+                onIndexChange={setIndex}
+                renderScene={renderScene}
+              />
+            </View>
           </NavigationContainer>
-        </AuthProvider>
-      </PaperProvider>
-    </SafeAreaProvider>
+        </SafeAreaProvider>
+      </DatabaseProvider>
+    </PaperProvider >
   );
 }
