@@ -15,7 +15,8 @@
     "react-native-paper-dates": "^0.24.0",
     "react-native-safe-area-context": "^5.10.0",
     "react-native-web": "^0.21.2",
-    "react-navigation": "^5.0.0"
+    "react-navigation": "^5.0.0",
+    "expo": "~57.0.24"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",
@@ -26,8 +27,8 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest"
   },

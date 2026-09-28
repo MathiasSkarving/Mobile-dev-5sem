@@ -19,7 +19,6 @@ const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 function ProfileTab() {
   const { isLoggedIn } = useAuth();
-
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
@@ -50,19 +49,21 @@ export default function App() {
 
   return (
     <PaperProvider>
-      <DatabaseProvider>
-        <SafeAreaProvider style={{ flex: 1 }}>
-          <NavigationContainer>
-            <View style={{ flex: 1 }}>
-              <BottomNavigation
-                navigationState={{ index, routes }}
-                onIndexChange={setIndex}
-                renderScene={renderScene}
-              />
-            </View>
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </DatabaseProvider>
+      <AuthProvider>
+        <DatabaseProvider>
+          <SafeAreaProvider style={{ flex: 1 }}>
+            <NavigationContainer>
+              <View style={{ flex: 1 }}>
+                <BottomNavigation
+                  navigationState={{ index, routes }}
+                  onIndexChange={setIndex}
+                  renderScene={renderScene}
+                />
+              </View>
+            </NavigationContainer>
+          </SafeAreaProvider>
+        </DatabaseProvider>
+      </AuthProvider>
     </PaperProvider >
   );
 }
