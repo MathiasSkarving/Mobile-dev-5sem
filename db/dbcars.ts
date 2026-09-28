@@ -6,7 +6,7 @@ export const addCar = async (
     db: SQLite.SQLiteDatabase,
     car: NewCar
 ) => {
-    const insertQuery = await db.prepareAsync( `
+    const insertQuery = await db.prepareAsync(`
         INSERT INTO cars (make, model, price_per_day, electric)
         VALUES (?, ?, ?, ?)
     `);
@@ -46,7 +46,7 @@ export const deleteCar = async (
     db: SQLite.SQLiteDatabase,
     id: number
 ) => {
-    const deleteQuery = await db.prepareAsync( `
+    const deleteQuery = await db.prepareAsync(`
         DELETE FROM cars
         WHERE id = ?
     `);
@@ -65,7 +65,7 @@ export const updateCar = async (
     db: SQLite.SQLiteDatabase,
     updatedCar: Car
 ) => {
-    const updateQuery = await db.prepareAsync( `
+    const updateQuery = await db.prepareAsync(`
         UPDATE cars
         SET make = ?, model = ?, price_per_day = ?
         WHERE id = ?

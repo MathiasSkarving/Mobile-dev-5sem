@@ -7,7 +7,7 @@ import Search from './components/search';
 import Login from './components/login';
 import SignupScreen from './components/signup';
 import Profile from './components/profile';
-import Bookings from './components/bookings';
+import Bookings from './components/bookings'; 
 import { ProfileStackParamList } from './navigation/types';
 import { SQLiteProvider } from 'expo-sqlite';
 import { migrateDbIfNeeded } from './db/db';
