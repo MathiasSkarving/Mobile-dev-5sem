@@ -8,8 +8,8 @@ interface CheckoutProps {
     carImage: string
     carName: string
     carPrice: number
-    startDate: string
-    endDate: string
+    startDate: Date
+    endDate: Date
 }
 
 const styles = StyleSheet.create({
@@ -38,12 +38,6 @@ const styles = StyleSheet.create({
 })
 
 export default function Checkout({ carImage, carName, carPrice, startDate, endDate }: CheckoutProps) {
-    /*const carImage = "../assets/icon.png"
-    const carName = "Citroën C3"
-    const carPrice = 100
-    const startDate = "2026-09-27"
-    const endDate = "2026-10-02"*/
-
     const [days, setDays] = useState(0)
     const [total, setTotal] = useState(0)
 
@@ -59,6 +53,14 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
     useFocusEffect(() => {
         calculateTotal()
     })
+
+    function formatDate(date: Date): string {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -80,7 +82,7 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
                             left={props => <List.Icon {...props} icon="calendar-today" />}
                             right={props => (
                                 <Text variant="bodyMedium" style={props.style}>
-                                    {startDate}
+                                    {formatDate(startDate)}
                                 </Text>
                             )}
                         />
@@ -90,7 +92,7 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
                             left={props => <List.Icon {...props} icon="rotate-left" />}
                             right={props => (
                                 <Text variant="bodyMedium" style={props.style}>
-                                    {endDate}
+                                    {formatDate(endDate)}
                                 </Text>
                             )}
                         />
