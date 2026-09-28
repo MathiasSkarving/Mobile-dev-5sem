@@ -7,10 +7,14 @@ export type Car = {
     electric: boolean;
 };
 
-export type NewCar = Omit<Car, "id">;
-
-export type CarWithImage = Car & {
-    image_url: string | null;
+export type CarImage = {
+    id: number;
+    url: string;
+    car_id: number;
 };
 
-export type Table = "Cars"
+export type NewCar = Omit<Car, "id">;
+export type NewCarImage = Omit<CarImage, "id">;
+
+export type CarsTable = "Cars"
+export type ImagesTable = "Images"

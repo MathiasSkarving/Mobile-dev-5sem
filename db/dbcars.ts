@@ -1,12 +1,12 @@
 import * as SQLite from "expo-sqlite"
 
-import { Car, CarWithImage, NewCar } from "./types"
+import { Car, NewCar } from "./types"
 
 export const addCar = async (
     db: SQLite.SQLiteDatabase,
     car: NewCar
 ) => {
-    const insertQuery = await db.prepareAsync( `
+    const insertQuery = await db.prepareAsync(`
         INSERT INTO cars (make, model, price_per_day, electric)
         VALUES (?, ?, ?, ?)
     `);
@@ -25,16 +25,14 @@ export const addCar = async (
 
 export const getCars = async (
     db: SQLite.SQLiteDatabase,
-): Promise<CarWithImage[]> => {
+): Promise<Car[]> => {
     const query = await db.prepareAsync(`
-        SELECT
-            cars.id, cars.make, cars.model, cars.price_per_day, cars.electric,
-            (SELECT url FROM images WHERE images.car_id = cars.id LIMIT 1) AS image_url
+        SELECT id, make, model, price_per_day, electric
         FROM cars
     `);
 
     try {
-        const result = await query.executeAsync<CarWithImage>();
+        const result = await query.executeAsync<Car>();
         return await result.getAllAsync();
     } catch (error) {
         console.error(error)
@@ -48,7 +46,7 @@ export const deleteCar = async (
     db: SQLite.SQLiteDatabase,
     id: number
 ) => {
-    const deleteQuery = await db.prepareAsync( `
+    const deleteQuery = await db.prepareAsync(`
         DELETE FROM cars
         WHERE id = ?
     `);
@@ -67,7 +65,7 @@ export const updateCar = async (
     db: SQLite.SQLiteDatabase,
     updatedCar: Car
 ) => {
-    const updateQuery = await db.prepareAsync( `
+    const updateQuery = await db.prepareAsync(`
         UPDATE cars
         SET make = ?, model = ?, price_per_day = ?
         WHERE id = ?

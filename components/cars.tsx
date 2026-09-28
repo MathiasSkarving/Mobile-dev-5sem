@@ -3,11 +3,13 @@ import { Dimensions, FlatList } from 'react-native'
 import { useEffect, useState } from 'react';
 import { useDatabase } from '../db/dbprovider';
 import { getCars } from '../db/dbcars';
-import { CarWithImage } from '../db/types';
+import { getFirstImage } from '../db/dbimages';
+import { Car } from '../db/types';
 
 export default function Cars() {
     const db = useDatabase();
-    const [cars, setCars] = useState<CarWithImage[]>([]);
+    const [cars, setCars] = useState<Car[]>([]);
+    const [firstImages, setFirstImages] = useState<Record<number, string>>({});
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +18,22 @@ export default function Cars() {
 
     useEffect(() => {
         getCars(db)
-            .then(setCars)
+            .then(async (fetchedCars) => {
+                setCars(fetchedCars);
+
+                const imageEntries = await Promise.all(
+                    fetchedCars.map(async (car) => {
+                        const image = await getFirstImage(db, car.id);
+                        return [car.id, image?.url] as const;
+                    })
+                );
+
+                const imageMap = Object.fromEntries(
+                    imageEntries.filter(([, url]) => url !== undefined)
+                ) as Record<number, string>;
+
+                setFirstImages(imageMap);
+            })
             .catch((e) => setError(e.message))
             .finally(() => setLoading(false));
     }, [db]);
@@ -44,7 +61,7 @@ export default function Cars() {
             renderItem={({ item }) => (
                 <Card mode="elevated"
                 style={{width: windowWidth * 0.9, alignSelf: 'center', marginBottom: windowHeight * 0.02}}>
-                    {item.image_url && <Card.Cover source={{ uri: item.image_url }} />}
+                    {firstImages[item.id] && <Card.Cover source={{ uri: firstImages[item.id] }} />}
                     <Card.Title
                         title={`${item.make} ${item.model}`}
                         titleVariant="titleMedium"
