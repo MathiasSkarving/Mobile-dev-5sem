@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite"
 
-import { Car, NewCar } from "./types"
+import { Car, CarWithImage, NewCar } from "./types"
 
 export const addCar = async (
     db: SQLite.SQLiteDatabase,
@@ -25,14 +25,16 @@ export const addCar = async (
 
 export const getCars = async (
     db: SQLite.SQLiteDatabase,
-): Promise<Car[]> => {
+): Promise<CarWithImage[]> => {
     const query = await db.prepareAsync(`
-        SELECT id, make, model, price_per_day, electric
+        SELECT
+            cars.id, cars.make, cars.model, cars.price_per_day, cars.electric,
+            (SELECT url FROM images WHERE images.car_id = cars.id LIMIT 1) AS image_url
         FROM cars
     `);
 
     try {
-        const result = await query.executeAsync<Car>();
+        const result = await query.executeAsync<CarWithImage>();
         return await result.getAllAsync();
     } catch (error) {
         console.error(error)
