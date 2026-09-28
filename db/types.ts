@@ -9,4 +9,8 @@ export type Car = {
 
 export type NewCar = Omit<Car, "id">;
 
+export type CarWithImage = Car & {
+    image_url: string | null;
+};
+
 export type Table = "Cars"
