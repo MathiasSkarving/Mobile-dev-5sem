@@ -42,10 +42,8 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
     const [total, setTotal] = useState(0)
 
     function calculateTotal() {
-        // startDate and endDate should probably be Date types from the beginning
-        const start = new Date(startDate)
-        const end = new Date(endDate)
-        const rentalDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86_400_000))
+        // Should be done on server and not on phone
+        const rentalDays = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86_400_000))
         setDays(rentalDays)
         setTotal(carPrice * rentalDays)
     }
