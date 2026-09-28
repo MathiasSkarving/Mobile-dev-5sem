@@ -63,7 +63,7 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
                 <Card mode="outlined">
                     <Card.Content>
@@ -138,6 +138,6 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
                     Cancel
                 </Button>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     )
 }
