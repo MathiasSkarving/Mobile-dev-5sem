@@ -1,4 +1,6 @@
 import { type SQLiteDatabase } from 'expo-sqlite';
+import { Car, NewCar } from './types';
+import { addCar } from './dbcars'
 
 export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
     const DATABASE_VERSION = 3;
@@ -29,12 +31,59 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
             );
         `);
 
+        // Make some random car entries
+        let carsToAdd: NewCar[] = [
+            {
+                make: "Volvo",
+                model: "B18",
+                price_per_day: 140,
+                electric: false,
+            },
+            {
+                make: "Toyota",
+                model: "Yaris",
+                price_per_day: 190,
+                electric: false,
+            },
+            {
+                make: "Mercedes",
+                model: "S-Class Maybach",
+                price_per_day: 900,
+                electric: false,
+            },
+            {
+                make: "VW",
+                model: "Golf 3",
+                price_per_day: 200,
+                electric: false,
+
+            },
+            {
+                make: "Skoda",
+                model: "Octavia",
+                price_per_day: 300,
+                electric: false,
+            },
+        ]
+
+        carsToAdd.forEach(element => {
+            addCar(db, element);
+        });
+
         await db.execAsync(`
             CREATE TABLE IF NOT EXISTS images (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 url TEXT NOT NULL,
                 car_id INTEGER NOT NULL,
                 FOREIGN KEY (car_id) REFERENCES cars(id)
+            );
+        `);
+
+        await db.execAsync(`
+            CREATE TABLE IF NOT EXISTS carThumbnails (
+                image_id INTEGER NOT NULL,
+                car_id INTEGER NOT NULL,
+                PRIMARY KEY (image_id, car_id)
             );
         `);
 
