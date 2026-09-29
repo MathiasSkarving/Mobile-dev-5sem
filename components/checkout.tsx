@@ -117,7 +117,6 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
 
                 <Button
                     mode="contained"
-                    icon="check"
                     onPress={() => navigation.goBack()}
                 >
                     Book {carName}
@@ -125,7 +124,6 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
 
                 <Button
                     mode="outlined"
-                    icon="close"
                     onPress={() => navigation.goBack()}
                 >
                     Cancel
