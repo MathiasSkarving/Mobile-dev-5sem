@@ -1,5 +1,5 @@
 import { ActivityIndicator, Button, Card, Text } from 'react-native-paper'
-import { Dimensions, FlatList } from 'react-native'
+import { Dimensions, FlatList, Pressable } from 'react-native'
 import { useEffect, useState } from 'react';
 import { useDatabase } from '../db/dbprovider';
 import { getCarsWithThumbnails } from '../db/dbcars';
@@ -42,7 +42,7 @@ export default function Cars({ startDate, endDate }: CarsProps) {
             ListHeaderComponent={
                 <Text variant="titleMedium"
                     style={{ width: windowWidth * 0.9, alignSelf: 'center', marginTop: windowHeight * 0.02, marginBottom: windowHeight * 0.01 }}>
-                    Available cars
+                    {cars.length} {cars.length === 1 ? 'car' : 'cars'} available
                 </Text>
             }
             ListEmptyComponent={
@@ -54,7 +54,16 @@ export default function Cars({ startDate, endDate }: CarsProps) {
                 <Card mode="elevated"
                     style={{ width: windowWidth * 0.9, alignSelf: 'center', marginBottom: windowHeight * 0.02 }}>
 
-                    {item.thumbnail_url && <Card.Cover source={{ uri: item.thumbnail_url }} />}
+                    {item.thumbnail_url && (
+                        <Pressable onPress={() => navigation.navigate('CarDetails', {
+                            car: item,
+                            imageUrl: item.thumbnail_url ?? undefined,
+                            startDate: startDate?.toISOString(),
+                            endDate: endDate?.toISOString(),
+                        })}>
+                            <Card.Cover source={{ uri: item.thumbnail_url }} />
+                        </Pressable>
+                    )}
                     <Card.Title
                         title={`${item.make} ${item.model}`}
                         titleVariant="titleMedium"
