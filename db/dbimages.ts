@@ -68,6 +68,23 @@ export const getFirstImage = async (
     }
 }
 
+export const setThumbnail = async (db: SQLite.SQLiteDatabase, carId: number, imageId: number) => {
+    const query = await db.prepareAsync(`INSERT INTO carThumbnails (car_id, image_id) VALUES (?, ?)
+         ON CONFLICT(car_id) DO UPDATE SET image_id = excluded.image_id`);
+
+    const values = [carId, imageId];
+
+    try {
+        const result = await query.executeAsync(values);
+        return result;
+    } catch (error) {
+        console.error(error)
+        throw Error("Failed to set thumbnail")
+    } finally {
+        await query.finalizeAsync();
+    }
+};
+
 export const deleteImage = async (
     db: SQLite.SQLiteDatabase,
     id: number

@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite"
 
-import { Car, NewCar } from "./types"
+import { Car, CarWithThumbnail, NewCar } from "./types"
 
 export const addCar = async (
     db: SQLite.SQLiteDatabase,
@@ -33,6 +33,27 @@ export const getCars = async (
 
     try {
         const result = await query.executeAsync<Car>();
+        return await result.getAllAsync();
+    } catch (error) {
+        console.error(error)
+        throw Error("Failed to get cars from database")
+    } finally {
+        await query.finalizeAsync();
+    }
+}
+
+export const getCarsWithThumbnails = async (
+    db: SQLite.SQLiteDatabase,
+): Promise<CarWithThumbnail[]> => {
+    const query = await db.prepareAsync(
+        `SELECT c.*, i.url AS thumbnail_url
+         FROM cars c
+         LEFT JOIN carThumbnails t ON t.car_id = c.id
+         LEFT JOIN images i ON i.id = t.image_id`
+    );
+
+    try {
+        const result = await query.executeAsync<CarWithThumbnail>();
         return await result.getAllAsync();
     } catch (error) {
         console.error(error)
