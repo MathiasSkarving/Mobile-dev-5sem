@@ -1,16 +1,9 @@
-import { Button, Card, Chip, Divider, List, Text, } from 'react-native-paper'
+import { Button, Card, Divider, List, Text, } from 'react-native-paper'
 import { Image, ScrollView, StyleSheet, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useState } from 'react'
-import { useFocusEffect } from '@react-navigation/native'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { CarsStackParamList } from '../navigation/types'
 
-interface CheckoutProps {
-    carImage: string
-    carName: string
-    carPrice: number
-    startDate: Date
-    endDate: Date
-}
+type CheckoutProps = NativeStackScreenProps<CarsStackParamList, 'Checkout'>
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F5F5' },
@@ -37,20 +30,20 @@ const styles = StyleSheet.create({
     },
 })
 
-export default function Checkout({ carImage, carName, carPrice, startDate, endDate }: CheckoutProps) {
-    const [days, setDays] = useState(0)
-    const [total, setTotal] = useState(0)
+export default function Checkout({ route, navigation }: CheckoutProps) {
+    const { car, imageUrl } = route.params
+    const carName = `${car.make} ${car.model}`
+    const carPrice = car.price_per_day
 
-    function calculateTotal() {
-        // Should be done on server and not on phone
-        const rentalDays = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86_400_000))
-        setDays(rentalDays)
-        setTotal(carPrice * rentalDays)
-    }
+    // Falls back to today -> tomorrow if no date range was selected
+    const startDate = route.params.startDate ? new Date(route.params.startDate) : new Date()
+    const endDate = route.params.endDate
+        ? new Date(route.params.endDate)
+        : new Date(startDate.getTime() + 86_400_000)
 
-    useFocusEffect(() => {
-        calculateTotal()
-    })
+    // Should be done on server and not on phone
+    const days = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86_400_000))
+    const total = carPrice * days
 
     function formatDate(date: Date): string {
         const day = date.getDate().toString().padStart(2, '0');
@@ -66,10 +59,12 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
                 <Card mode="outlined">
                     <Card.Content>
                         <View style={styles.carRow}>
-                            <Image
-                                style={styles.carImage}
-                                source={require(carImage)}
-                            />
+                            {imageUrl && (
+                                <Image
+                                    style={styles.carImage}
+                                    source={{ uri: imageUrl }}
+                                />
+                            )}
                             <View style={styles.info}>
                                 <Text variant="titleLarge">{carName}</Text>
                             </View>
@@ -123,7 +118,7 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
                 <Button
                     mode="contained"
                     icon="check"
-                    onPress={() => { }}
+                    onPress={() => navigation.goBack()}
                 >
                     Book {carName}
                 </Button>
@@ -131,7 +126,7 @@ export default function Checkout({ carImage, carName, carPrice, startDate, endDa
                 <Button
                     mode="outlined"
                     icon="close"
-                    onPress={() => { }}
+                    onPress={() => navigation.goBack()}
                 >
                     Cancel
                 </Button>

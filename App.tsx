@@ -1,40 +1,66 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { BottomNavigation, PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Search from './components/search';
 import Login from './components/login';
 import SignupScreen from './components/signup';
 import Profile from './components/profile';
 import Bookings from './components/bookings'; 
-import { ProfileStackParamList } from './navigation/types';
+import Checkout from './components/checkout';
+import { CarsStackParamList, ProfileStackParamList } from './navigation/types';
 import { SQLiteProvider } from 'expo-sqlite';
 import { migrateDbIfNeeded } from './db/db';
 import { View } from 'react-native';
 import { DatabaseProvider } from './db/dbprovider';
 import { AuthProvider, useAuth } from './auth/authContent';
 
+// Paper's BottomNavigation is not a React Navigation navigator,
+// so each tab's stack needs its own container
+function TabContainer({ children }: { children: ReactNode }) {
+  return (
+    <NavigationIndependentTree>
+      <NavigationContainer>{children}</NavigationContainer>
+    </NavigationIndependentTree>
+  );
+}
+
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
 function ProfileTab() {
   const { isLoggedIn } = useAuth();
   return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
-      {isLoggedIn ? (
-        <ProfileStack.Screen name="Profile" component={Profile} />
-      ) : (
-        <>
-          <ProfileStack.Screen name="Login" component={Login} />
-          <ProfileStack.Screen name="Signup" component={SignupScreen} />
-        </>
-      )}
-    </ProfileStack.Navigator>
+    <TabContainer>
+      <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+        {isLoggedIn ? (
+          <ProfileStack.Screen name="Profile" component={Profile} />
+        ) : (
+          <>
+            <ProfileStack.Screen name="Login" component={Login} />
+            <ProfileStack.Screen name="Signup" component={SignupScreen} />
+          </>
+        )}
+      </ProfileStack.Navigator>
+    </TabContainer>
+  );
+}
+
+const CarsStack = createNativeStackNavigator<CarsStackParamList>();
+
+function CarsTab() {
+  return (
+    <TabContainer>
+      <CarsStack.Navigator>
+        <CarsStack.Screen name="Search" component={Search} options={{ headerShown: false }} />
+        <CarsStack.Screen name="Checkout" component={Checkout} />
+      </CarsStack.Navigator>
+    </TabContainer>
   );
 }
 
 const renderScene = BottomNavigation.SceneMap({
-  search: Search,
+  search: CarsTab,
   profile: ProfileTab,
   bookings: Bookings,
 });
@@ -52,15 +78,13 @@ export default function App() {
       <AuthProvider>
         <DatabaseProvider>
           <SafeAreaProvider style={{ flex: 1 }}>
-            <NavigationContainer>
-              <View style={{ flex: 1 }}>
-                <BottomNavigation
-                  navigationState={{ index, routes }}
-                  onIndexChange={setIndex}
-                  renderScene={renderScene}
-                />
-              </View>
-            </NavigationContainer>
+            <View style={{ flex: 1 }}>
+              <BottomNavigation
+                navigationState={{ index, routes }}
+                onIndexChange={setIndex}
+                renderScene={renderScene}
+              />
+            </View>
           </SafeAreaProvider>
         </DatabaseProvider>
       </AuthProvider>

@@ -91,7 +91,7 @@ export default function Search() {
 
             <Divider/>
 
-            <Cars/>
+            <Cars startDate={selectedDateRange?.startDate} endDate={selectedDateRange?.endDate}/>
         </SafeAreaView>
     );
 }

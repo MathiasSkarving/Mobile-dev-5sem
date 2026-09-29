@@ -2,11 +2,19 @@ import { ActivityIndicator, Button, Card, Text } from 'react-native-paper'
 import { Dimensions, FlatList } from 'react-native'
 import { useEffect, useState } from 'react';
 import { useDatabase } from '../db/dbprovider';
-import { getCars, getCarsWithThumbnails } from '../db/dbcars';
-import { getFirstImage } from '../db/dbimages';
-import { Car, CarWithThumbnail } from '../db/types';
+import { getCarsWithThumbnails } from '../db/dbcars';
+import { CarWithThumbnail } from '../db/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { CarsStackParamList } from '../navigation/types';
 
-export default function Cars() {
+interface CarsProps {
+    startDate?: Date
+    endDate?: Date
+}
+
+export default function Cars({ startDate, endDate }: CarsProps) {
+    const navigation = useNavigation<NativeStackNavigationProp<CarsStackParamList>>();
     const db = useDatabase();
     const [cars, setCars] = useState<CarWithThumbnail[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -46,7 +54,7 @@ export default function Cars() {
                 <Card mode="elevated"
                     style={{ width: windowWidth * 0.9, alignSelf: 'center', marginBottom: windowHeight * 0.02 }}>
 
-                    {item.thumbnail_url && <Card.Cover source={{ uri: item.thumbnail_url }} />}                 
+                    {item.thumbnail_url && <Card.Cover source={{ uri: item.thumbnail_url }} />}
                     <Card.Title
                         title={`${item.make} ${item.model}`}
                         titleVariant="titleMedium"
@@ -59,7 +67,12 @@ export default function Cars() {
                     />
 
                     <Card.Actions>
-                        <Button mode="contained" icon="car-key" onPress={() => { }}>
+                        <Button onPress={() => navigation.navigate('Checkout', {
+                            car: item,
+                            imageUrl: item.thumbnail_url ?? undefined,
+                            startDate: startDate?.toISOString(),
+                            endDate: endDate?.toISOString(),
+                        })} mode="contained" icon="car-key">
                             Book
                         </Button>
                     </Card.Actions>
