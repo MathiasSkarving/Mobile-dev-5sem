@@ -13,6 +13,18 @@ export type CarImage = {
     car_id: number;
 };
 
+// Dates are understood as 'YYYY-MM-DD'
+export type Booking = {
+    id: number;
+    car_id: number;
+    start_date: string; 
+    end_date: string;   
+};
+
+export type NewBooking = Omit<Booking, "id">;
+
+export type CarWithThumbnail = Car & { thumbnail_url: string | null };
+
 export type NewCar = Omit<Car, "id">;
 export type NewCarImage = Omit<CarImage, "id">;
 

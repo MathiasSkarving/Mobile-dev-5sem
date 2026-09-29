@@ -2,9 +2,8 @@ import { ActivityIndicator, Button, Card, Text } from 'react-native-paper'
 import { Dimensions, FlatList } from 'react-native'
 import { useEffect, useState } from 'react';
 import { useDatabase } from '../db/dbprovider';
-import { getCars } from '../db/dbcars';
-import { getFirstImage } from '../db/dbimages';
-import { Car } from '../db/types';
+import { getCarsWithThumbnails } from '../db/dbcars';
+import { CarWithThumbnail } from '../db/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { CarsStackParamList } from '../navigation/types';
@@ -17,8 +16,7 @@ interface CarsProps {
 export default function Cars({ startDate, endDate }: CarsProps) {
     const navigation = useNavigation<NativeStackNavigationProp<CarsStackParamList>>();
     const db = useDatabase();
-    const [cars, setCars] = useState<Car[]>([]);
-    const [firstImages, setFirstImages] = useState<Record<number, string>>({});
+    const [cars, setCars] = useState<CarWithThumbnail[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -26,23 +24,8 @@ export default function Cars({ startDate, endDate }: CarsProps) {
     const windowHeight = Dimensions.get('window').height;
 
     useEffect(() => {
-        getCars(db)
-            .then(async (fetchedCars) => {
-                setCars(fetchedCars);
-
-                const imageEntries = await Promise.all(
-                    fetchedCars.map(async (car) => {
-                        const image = await getFirstImage(db, car.id);
-                        return [car.id, image?.url] as const;
-                    })
-                );
-
-                const imageMap = Object.fromEntries(
-                    imageEntries.filter(([, url]) => url !== undefined)
-                ) as Record<number, string>;
-
-                setFirstImages(imageMap);
-            })
+        getCarsWithThumbnails(db)
+            .then(setCars)
             .catch((e) => setError(e.message))
             .finally(() => setLoading(false));
     }, [db]);
@@ -53,38 +36,40 @@ export default function Cars({ startDate, endDate }: CarsProps) {
 
     return (
         <FlatList
-            style={{flex: 1}}
+            style={{ flex: 1 }}
             data={cars}
             keyExtractor={(car) => car.id.toString()}
             ListHeaderComponent={
                 <Text variant="titleMedium"
-                style={{width: windowWidth * 0.9, alignSelf: 'center', marginTop: windowHeight * 0.02, marginBottom: windowHeight * 0.01}}>
+                    style={{ width: windowWidth * 0.9, alignSelf: 'center', marginTop: windowHeight * 0.02, marginBottom: windowHeight * 0.01 }}>
                     Available cars
                 </Text>
             }
             ListEmptyComponent={
-                <Text style={{alignSelf: 'center', marginTop: windowHeight * 0.05}}>
+                <Text style={{ alignSelf: 'center', marginTop: windowHeight * 0.05 }}>
                     {error ?? 'No cars found'}
                 </Text>
             }
             renderItem={({ item }) => (
                 <Card mode="elevated"
-                style={{width: windowWidth * 0.9, alignSelf: 'center', marginBottom: windowHeight * 0.02}}>
-                    {firstImages[item.id] && <Card.Cover source={{ uri: firstImages[item.id] }} />}
+                    style={{ width: windowWidth * 0.9, alignSelf: 'center', marginBottom: windowHeight * 0.02 }}>
+
+                    {item.thumbnail_url && <Card.Cover source={{ uri: item.thumbnail_url }} />}
                     <Card.Title
                         title={`${item.make} ${item.model}`}
                         titleVariant="titleMedium"
                         subtitle={item.electric ? 'Electric' : undefined}
                         right={() => (
-                            <Text variant="titleMedium" style={{marginRight: windowWidth * 0.04}}>
+                            <Text variant="titleMedium" style={{ marginRight: windowWidth * 0.04 }}>
                                 {item.price_per_day} kr./day
                             </Text>
                         )}
                     />
+
                     <Card.Actions>
                         <Button onPress={() => navigation.navigate('Checkout', {
                             car: item,
-                            imageUrl: firstImages[item.id],
+                            imageUrl: item.thumbnail_url ?? undefined,
                             startDate: startDate?.toISOString(),
                             endDate: endDate?.toISOString(),
                         })} mode="contained" icon="car-key">
