@@ -58,7 +58,7 @@ export default function Search() {
                 validRange={{ startDate: new Date() }}
             />
 
-            <Cars />
+            <Cars startDate={selectedDateRange?.startDate} endDate={selectedDateRange?.endDate} />
         </SafeAreaView>
     );
 }

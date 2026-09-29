@@ -5,8 +5,17 @@ import { useDatabase } from '../db/dbprovider';
 import { getCars } from '../db/dbcars';
 import { getFirstImage } from '../db/dbimages';
 import { Car } from '../db/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { CarsStackParamList } from '../navigation/types';
 
-export default function Cars() {
+interface CarsProps {
+    startDate?: Date
+    endDate?: Date
+}
+
+export default function Cars({ startDate, endDate }: CarsProps) {
+    const navigation = useNavigation<NativeStackNavigationProp<CarsStackParamList>>();
     const db = useDatabase();
     const [cars, setCars] = useState<Car[]>([]);
     const [firstImages, setFirstImages] = useState<Record<number, string>>({});
@@ -73,7 +82,12 @@ export default function Cars() {
                         )}
                     />
                     <Card.Actions>
-                        <Button mode="contained" icon="car-key" onPress={() => {}}>
+                        <Button onPress={() => navigation.navigate('Checkout', {
+                            car: item,
+                            imageUrl: firstImages[item.id],
+                            startDate: startDate?.toISOString(),
+                            endDate: endDate?.toISOString(),
+                        })} mode="contained" icon="car-key">
                             Book
                         </Button>
                     </Card.Actions>
