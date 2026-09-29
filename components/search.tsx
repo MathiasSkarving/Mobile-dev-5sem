@@ -47,6 +47,13 @@ export default function Search() {
 
             <View style={{margin: 20, gap: 12}}>
 
+                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12}}>
+                    <Icon source={"car-side"} size={50} color={"#6750a4"}/>
+                    <Text variant={"titleLarge"} style={{color: "#6750a4", fontWeight: "bold"}}>
+                        OG Car Booking
+                    </Text>
+                </View>
+
                 <TypewriterSearchbar value={searchQuery} onChangeText={setSearchQuery}/>
 
                 <Card onPress={() => setDatePickerModalVisible(true)} mode="outlined">
@@ -55,7 +62,6 @@ export default function Search() {
                         <Text>{selectedDateRange ? formatDateRange(selectedDateRange) : 'Select date range'}</Text>
                     </Card.Content>
                 </Card>
-
 
                 <DatePickerModal
                     locale="en"
