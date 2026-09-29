@@ -9,6 +9,7 @@ import SignupScreen from './components/signup';
 import Profile from './components/profile';
 import Bookings from './components/bookings'; 
 import Checkout from './components/checkout';
+import CarDetails from './components/carDetails';
 import { CarsStackParamList, ProfileStackParamList } from './navigation/types';
 import { SQLiteProvider } from 'expo-sqlite';
 import { migrateDbIfNeeded } from './db/db';
@@ -54,6 +55,7 @@ function CarsTab() {
       <CarsStack.Navigator>
         <CarsStack.Screen name="Search" component={Search} options={{ headerShown: false }} />
         <CarsStack.Screen name="Checkout" component={Checkout} />
+        <CarsStack.Screen name="CarDetails" component={CarDetails} options={{ title: 'Details' }} />
       </CarsStack.Navigator>
     </TabContainer>
   );
