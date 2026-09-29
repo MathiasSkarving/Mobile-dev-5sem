@@ -1,32 +1,17 @@
-import { Button, Chip, Text } from 'react-native-paper'
-import { Dimensions, Image, ScrollView, StyleSheet, View } from 'react-native'
+import { Button, Card, Chip, Text } from 'react-native-paper'
+import { Dimensions, ScrollView } from 'react-native'
 import { useEffect } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { CarsStackParamList } from '../navigation/types'
 
 type Props = NativeStackScreenProps<CarsStackParamList, 'CarDetails'>
 
-const windowWidth = Dimensions.get('window').width
-
-const styles = StyleSheet.create({
-    image: {
-        width: windowWidth,
-        height: 250,
-    },
-    content: {
-        padding: 16,
-        gap: 16,
-    },
-    titleRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-})
-
 export default function CarDetails({ route, navigation }: Props) {
     const { car, imageUrl, startDate, endDate } = route.params
     const carName = `${car.make} ${car.model}`
+
+    const windowWidth = Dimensions.get('window').width;
+    const windowHeight = Dimensions.get('window').height;
 
     useEffect(() => {
         navigation.setOptions({ title: carName })
@@ -34,35 +19,39 @@ export default function CarDetails({ route, navigation }: Props) {
 
     return (
         <ScrollView>
-            {imageUrl && (
-                <Image source={{ uri: imageUrl }} style={styles.image} />
-            )}
+            <Card mode="elevated"
+                style={{ width: windowWidth * 0.9, alignSelf: 'center', marginTop: windowHeight * 0.02 }}>
 
-            <View style={styles.content}>
-                <View style={styles.titleRow}>
-                    <Text variant="headlineSmall">{carName}</Text>
-                    <Text variant="titleLarge">{car.price_per_day} kr./day</Text>
-                </View>
+                {imageUrl && <Card.Cover source={{ uri: imageUrl }} />}
+                <Card.Title
+                    title={carName}
+                    titleVariant="titleMedium"
+                    right={() => (
+                        <Text variant="titleMedium" style={{ marginRight: windowWidth * 0.04 }}>
+                            {car.price_per_day} kr./day
+                        </Text>
+                    )}
+                />
 
                 {!!car.electric && (
-                    <Chip icon="lightning-bolt" style={{ alignSelf: 'flex-start' }}>
-                        Electric
-                    </Chip>
+                    <Card.Content>
+                        <Chip icon="lightning-bolt" style={{ alignSelf: 'flex-start' }}>
+                            Electric
+                        </Chip>
+                    </Card.Content>
                 )}
 
-                <Button
-                    mode="contained"
-                    icon="car-key"
-                    onPress={() => navigation.navigate('Checkout', {
+                <Card.Actions>
+                    <Button onPress={() => navigation.navigate('Checkout', {
                         car,
                         imageUrl,
                         startDate,
                         endDate,
-                    })}
-                >
-                    Book
-                </Button>
-            </View>
+                    })} mode="contained" icon="car-key">
+                        Book
+                    </Button>
+                </Card.Actions>
+            </Card>
         </ScrollView>
     )
 }
