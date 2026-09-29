@@ -42,6 +42,29 @@ export const getCars = async (
     }
 }
 
+export const getCarsFromSearchQuery = async (
+    db: SQLite.SQLiteDatabase, searchQuery: string
+): Promise<Car[]> => {
+
+    const term = `%${searchQuery}%`;
+
+    const query = await db.prepareAsync(`
+        SELECT * FROM cars WHERE make LIKE ? OR model LIKE ? OR price_per_day LIKE ?
+    `);
+
+    const values = [term, term, term];
+
+    try {
+        const result = await query.executeAsync<Car>(values);
+        return await result.getAllAsync();
+    } catch (error) {
+        console.error(error)
+        throw Error("Failed to get cars from database")
+    } finally {
+        await query.finalizeAsync();
+    }
+}
+
 export const getCarsWithThumbnails = async (
     db: SQLite.SQLiteDatabase,
 ): Promise<CarWithThumbnail[]> => {
