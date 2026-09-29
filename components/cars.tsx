@@ -2,18 +2,19 @@ import { ActivityIndicator, Button, Card, Text } from 'react-native-paper'
 import { Dimensions, FlatList, Pressable } from 'react-native'
 import { useEffect, useState } from 'react';
 import { useDatabase } from '../db/dbprovider';
-import { getCarsWithThumbnails } from '../db/dbcars';
+import { getAvailableCarsFromSearchQuery, getAvailableCarsWithThumbnailFromSearchQuery, getCarsWithThumbnails } from '../db/dbcars';
 import { CarWithThumbnail } from '../db/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { CarsStackParamList } from '../navigation/types';
 
 interface CarsProps {
+    searchQuery?: string
     startDate?: Date
     endDate?: Date
 }
 
-export default function Cars({ startDate, endDate }: CarsProps) {
+export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
     const navigation = useNavigation<NativeStackNavigationProp<CarsStackParamList>>();
     const db = useDatabase();
     const [cars, setCars] = useState<CarWithThumbnail[]>([]);
@@ -24,11 +25,23 @@ export default function Cars({ startDate, endDate }: CarsProps) {
     const windowHeight = Dimensions.get('window').height;
 
     useEffect(() => {
-        getCarsWithThumbnails(db)
-            .then(setCars)
-            .catch((e) => setError(e.message))
-            .finally(() => setLoading(false));
-    }, [db]);
+        let cancelled = false;
+
+        setLoading(true);
+        setError(null);
+        if (searchQuery != undefined) {
+            getAvailableCarsWithThumbnailFromSearchQuery(db, searchQuery, startDate, endDate)
+                .then((result) => {
+                    if (!cancelled) setCars(result);
+                })
+                .catch((e) => {
+                    if (!cancelled) setError(e.message ?? 'Failed to load cars');
+                })
+                .finally(() => {
+                    if (!cancelled) setLoading(false);
+                });
+        }
+    }, [db, searchQuery, startDate, endDate]);
 
     if (loading) {
         return <ActivityIndicator style={{ marginTop: windowHeight * 0.05 }} />;

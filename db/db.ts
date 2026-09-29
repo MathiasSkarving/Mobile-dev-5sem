@@ -3,6 +3,8 @@ import { Car, NewCar } from './types';
 import { addCar } from './dbcars'
 import { addImage, setThumbnail } from './dbimages'
 
+const RESET_DB_ON_START = __DEV__; // flip to false to keep data between launches
+
 export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
     const DATABASE_VERSION = 3;
 
@@ -10,6 +12,18 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
         PRAGMA journal_mode = 'wal';
         PRAGMA foreign_keys = ON;
     `);
+    
+    if (RESET_DB_ON_START) {
+        await db.execAsync(`
+            PRAGMA foreign_keys = OFF;
+            DROP TABLE IF EXISTS bookings;
+            DROP TABLE IF EXISTS carThumbnails;
+            DROP TABLE IF EXISTS images;
+            DROP TABLE IF EXISTS cars;
+            PRAGMA user_version = 0;
+            PRAGMA foreign_keys = ON;
+        `);
+    }
 
     const result = await db.getFirstAsync<{ user_version: number }>(
         'PRAGMA user_version'

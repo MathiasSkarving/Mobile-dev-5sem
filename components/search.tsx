@@ -43,8 +43,6 @@ export default function Search() {
 
     return (
         <SafeAreaView style={{flex: 1}}>
-
-
             <View style={{margin: 20, gap: 12}}>
 
                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12}}>
@@ -91,7 +89,7 @@ export default function Search() {
 
             <Divider/>
 
-            <Cars startDate={selectedDateRange?.startDate} endDate={selectedDateRange?.endDate}/>
+            <Cars searchQuery = {searchQuery} startDate={selectedDateRange?.startDate} endDate={selectedDateRange?.endDate}/>
         </SafeAreaView>
     );
 }
