@@ -1,4 +1,4 @@
-import {Card, Divider, Icon, Searchbar, Text} from 'react-native-paper'
+import {Button, Card, Divider, Icon, Searchbar, Text} from 'react-native-paper'
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {DatePickerModal, enGB, registerTranslation} from 'react-native-paper-dates';
 import {useCallback, useEffect, useState} from 'react';
@@ -41,6 +41,10 @@ export default function Search() {
         setSelectedDateRange(range);
     }, []);
 
+    function clearDateRange() {
+        setSelectedDateRange(undefined);
+    }
+
     return (
         <SafeAreaView style={{flex: 1}}>
 
@@ -57,9 +61,16 @@ export default function Search() {
                 <TypewriterSearchbar value={searchQuery} onChangeText={setSearchQuery}/>
 
                 <Card onPress={() => setDatePickerModalVisible(true)} mode="outlined">
-                    <Card.Content style={{flexDirection: "row"}}>
-                        <Icon size={20} source={"calendar"}/>
-                        <Text>{selectedDateRange ? formatDateRange(selectedDateRange) : 'Select date range'}</Text>
+                    <Card.Content>
+                        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                            <View style={{flexDirection: "row", gap: 12}}>
+                                <Icon size={20} source={"calendar"}/>
+                                <Text>{selectedDateRange ? formatDateRange(selectedDateRange) : 'Select date range'}</Text>
+                            </View>
+                            <Button onPress={clearDateRange} disabled={selectedDateRange === undefined}>
+                                Clear
+                            </Button>
+                        </View>
                     </Card.Content>
                 </Card>
 
