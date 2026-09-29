@@ -66,7 +66,7 @@ export default function Search() {
                                 <Text>{selectedDateRange ? formatDateRange(selectedDateRange) : 'Select date range'}</Text>
                             </View>
                             <Button onPress={clearDateRange} disabled={selectedDateRange === undefined}>
-                                Clear
+                                {selectedDateRange === undefined ? "" : "Clear"}
                             </Button>
                         </View>
                     </Card.Content>
