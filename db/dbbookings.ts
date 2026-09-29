@@ -35,7 +35,7 @@ export const addBookingIfAvailable = async (
     }
 
     await db.withExclusiveTransactionAsync(async (txn) => {
-        const free = await isCarAvailable(txn, booking.car_id, booking.start_date, booking.end_date);
+        const free = await isCarAvailableAtThisDate(txn, booking.car_id, booking.start_date, booking.end_date);
         if (!free) return;
 
         await addBooking(txn, booking);
@@ -147,7 +147,7 @@ export const updateBookingIfAvailable = async (
     }
 
     await db.withExclusiveTransactionAsync(async (txn) => {
-        const free = await isCarAvailable(txn, booking.car_id, booking.start_date, booking.end_date, booking.id);
+        const free = await isCarAvailableAtThisDate(txn, booking.car_id, booking.start_date, booking.end_date, booking.id);
         if (!free) return;
 
         await updateBooking(txn, booking);
@@ -177,6 +177,30 @@ export const deleteBooking = async (
 }
 
 export const isCarAvailable = async (
+    db: SQLite.SQLiteDatabase,
+    carId: number,
+): Promise<boolean> => {
+    const query = await db.prepareAsync(`
+        SELECT COUNT(*) AS count
+        FROM bookings
+        WHERE car_id = ?
+    `);
+
+    try {
+        const result = await query.executeAsync<{ count: number }>([
+            carId,
+        ]);
+        const row = await result.getFirstAsync();
+        return (row?.count ?? 0) === 0;
+    } catch (error) {
+        console.error(error)
+        throw Error("Failed to check car availability")
+    } finally {
+        await query.finalizeAsync();
+    }
+}
+
+export const isCarAvailableAtThisDate = async (
     db: SQLite.SQLiteDatabase,
     carId: number,
     startDate: string,
