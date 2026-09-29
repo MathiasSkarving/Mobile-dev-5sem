@@ -46,27 +46,82 @@ export const getCars = async (
 export const getAvailableCarsFromSearchQuery = async (
     db: SQLite.SQLiteDatabase,
     searchQuery: string,
-    startDate: string,
-    endDate: string
+    startDate: Date | undefined,
+    endDate: Date | undefined
 ): Promise<Car[]> => {
     const term = `%${searchQuery}%`;
 
     const query = await db.prepareAsync(`
     SELECT c.* FROM cars c
-    WHERE (c.make LIKE $term OR c.model LIKE $term OR c.price_per_day LIKE $term)
-      AND NOT EXISTS (
-        SELECT 1 FROM bookings b
-        WHERE b.car_id = c.id
-          AND b.start_date < $end
-          AND b.end_date   > $start
+    WHERE (c.make LIKE $term OR c.model LIKE $term OR CAST(c.price_per_day AS TEXT) LIKE $term)
+          AND (
+            $start IS NULL
+            OR NOT EXISTS (
+                SELECT 1 FROM bookings b
+                WHERE b.car_id = c.id
+                  AND b.start_date < $end
+                  AND b.end_date   > $start
+            )
+          )
       )
     `);
 
     try {
-        const result = await query.executeAsync<Car>({
+        if (startDate != undefined && endDate != undefined) {
+            const result = await query.executeAsync<Car>({
+                $term: term,
+                $start: startDate.toISOString().slice(0, 10),
+                $end: endDate.toISOString().slice(0, 10),
+            });
+            return await result.getAllAsync();
+        }
+        return [];
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to get cars from database");
+    } finally {
+        await query.finalizeAsync();
+    }
+}
+
+const toLocalDateString = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+};
+
+export const getAvailableCarsWithThumbnailFromSearchQuery = async (
+    db: SQLite.SQLiteDatabase,
+    searchQuery: string,
+    startDate: Date | undefined,
+    endDate: Date | undefined
+): Promise<CarWithThumbnail[]> => {
+    const term = `%${searchQuery}%`;
+    const hasDates = startDate != undefined && endDate != undefined;
+
+    const query = await db.prepareAsync(`
+        SELECT c.*, i.url AS thumbnail_url
+        FROM cars c
+        LEFT JOIN carThumbnails t ON t.car_id = c.id
+        LEFT JOIN images i ON i.id = t.image_id
+        WHERE (c.make LIKE $term OR c.model LIKE $term OR CAST(c.price_per_day AS TEXT) LIKE $term)
+          AND (
+            $start IS NULL
+            OR NOT EXISTS (
+                SELECT 1 FROM bookings b
+                WHERE b.car_id = c.id
+                  AND b.start_date < $end
+                  AND b.end_date   > $start
+            )
+          )
+    `);
+
+    try {
+        const result = await query.executeAsync<CarWithThumbnail>({
             $term: term,
-            $start: startDate,
-            $end: endDate,
+            $start: hasDates ? toLocalDateString(startDate) : null,
+            $end: hasDates ? toLocalDateString(endDate) : null,
         });
         return await result.getAllAsync();
     } catch (error) {
@@ -75,7 +130,7 @@ export const getAvailableCarsFromSearchQuery = async (
     } finally {
         await query.finalizeAsync();
     }
-}
+};
 
 export const getCarsWithThumbnails = async (
     db: SQLite.SQLiteDatabase,
