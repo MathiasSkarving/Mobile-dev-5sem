@@ -1,6 +1,7 @@
 import * as SQLite from "expo-sqlite"
 
 import { Car, CarWithThumbnail, NewCar } from "./types"
+import { List } from "react-native-paper";
 
 export const addCar = async (
     db: SQLite.SQLiteDatabase,
@@ -42,24 +43,35 @@ export const getCars = async (
     }
 }
 
-export const getCarsFromSearchQuery = async (
-    db: SQLite.SQLiteDatabase, searchQuery: string
+export const getAvailableCarsFromSearchQuery = async (
+    db: SQLite.SQLiteDatabase,
+    searchQuery: string,
+    startDate: string,
+    endDate: string
 ): Promise<Car[]> => {
-
     const term = `%${searchQuery}%`;
 
     const query = await db.prepareAsync(`
-        SELECT * FROM cars WHERE make LIKE ? OR model LIKE ? OR price_per_day LIKE ?
+    SELECT c.* FROM cars c
+    WHERE (c.make LIKE $term OR c.model LIKE $term OR c.price_per_day LIKE $term)
+      AND NOT EXISTS (
+        SELECT 1 FROM bookings b
+        WHERE b.car_id = c.id
+          AND b.start_date < $end
+          AND b.end_date   > $start
+      )
     `);
 
-    const values = [term, term, term];
-
     try {
-        const result = await query.executeAsync<Car>(values);
+        const result = await query.executeAsync<Car>({
+            $term: term,
+            $start: startDate,
+            $end: endDate,
+        });
         return await result.getAllAsync();
     } catch (error) {
-        console.error(error)
-        throw Error("Failed to get cars from database")
+        console.error(error);
+        throw new Error("Failed to get cars from database");
     } finally {
         await query.finalizeAsync();
     }
