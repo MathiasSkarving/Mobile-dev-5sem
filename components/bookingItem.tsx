@@ -16,8 +16,8 @@ export function BookingItem({ booking }: BookingItemProps) {
             <Card.Title title={booking.name} subtitle={dateRange}/>
 
             <Card.Content>
-                <Text variant="bodyMedium">${booking.price_per_day.toFixed(2)}/day</Text>
-                <Text variant="bodyMedium">${booking.total_price.toFixed(2)} total</Text>
+                <Text variant="bodyMedium">{booking.price_per_day.toFixed(2)} kr/day</Text>
+                <Text variant="bodyMedium">{booking.total_price.toFixed(2)} kr total</Text>
             </Card.Content>
         </Card>
     );
