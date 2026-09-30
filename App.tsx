@@ -10,9 +10,7 @@ import Profile from './screens/profile';
 import Bookings from './screens/bookings';
 import Checkout from './screens/checkout';
 import CarDetails from './screens/carDetails';
-import { CarsStackParamList, ProfileStackParamList } from './navigation/types';
-import { SQLiteProvider } from 'expo-sqlite';
-import { migrateDbIfNeeded } from './db/db';
+import { BookingsStackParamList, CarsStackParamList, ProfileStackParamList } from './navigation/types';
 import { View } from 'react-native';
 import { DatabaseProvider } from './db/dbprovider';
 import { AuthProvider, useAuth } from './auth/authContent';
@@ -62,10 +60,22 @@ function CarsTab() {
   );
 }
 
+const BookingsStack = createNativeStackNavigator<BookingsStackParamList>();
+
+function BookingsTab() {
+  return (
+    <TabContainer>
+      <BookingsStack.Navigator>
+        <BookingsStack.Screen name="Bookings" component={Bookings} options={{ headerShown: false }} />
+      </BookingsStack.Navigator>
+    </TabContainer>
+  );
+}
+
 const renderScene = BottomNavigation.SceneMap({
   search: CarsTab,
   profile: ProfileTab,
-  bookings: Bookings,
+  bookings: BookingsTab,
 });
 
 export default function App() {

@@ -3,11 +3,13 @@ import { Dimensions, FlatList, Pressable } from 'react-native'
 import { useEffect, useState } from 'react';
 import { useDatabase } from '../db/dbprovider';
 import { getAvailableCarsFromSearchQuery, getAvailableCarsWithThumbnailFromSearchQuery, getCarsWithThumbnails } from '../db/dbcars';
-import { CarWithThumbnail } from '../db/types';
+import { CarDisplayMode, CarWithThumbnail } from '../db/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { CarsStackParamList } from '../navigation/types';
 import CarItem from '../components/carItem';
+import { useTabs } from '../navigation/tabContext';
+import { toDbDate } from '../utils/datehelper';
 
 interface CarsProps {
     searchQuery?: string
@@ -21,9 +23,13 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
     const [cars, setCars] = useState<CarWithThumbnail[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
+    const displayMode: CarDisplayMode = startDate === undefined ? 'no_date_selected' : 'available'
+
+    const { bookingsVersion } = useTabs()
+
+    console.log('availability args', { searchQuery, startDate, endDate })
 
     useEffect(() => {
         let cancelled = false;
@@ -42,7 +48,7 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
                     if (!cancelled) setLoading(false);
                 });
         }
-    }, [db, searchQuery, startDate, endDate]);
+    }, [db, searchQuery, startDate, endDate, bookingsVersion]);
 
     if (loading) {
         return <ActivityIndicator style={{ marginTop: windowHeight * 0.05 }} />;
@@ -70,15 +76,15 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
                     onPressDetails={() => navigation.navigate('CarDetails', {
                         car: item,
                         imageUrl: item.thumbnail_url ?? undefined,
-                        startDate: startDate?.toISOString(),
-                        endDate: endDate?.toISOString(),
+                        startDate: toDbDate(startDate),
+                        endDate: toDbDate(endDate)
                     })}
                     onPressBook={() => navigation.navigate('Checkout', {
                         car: item,
                         imageUrl: item.thumbnail_url ?? undefined,
-                        startDate: startDate?.toISOString(),
-                        endDate: endDate?.toISOString(),
-                    })} mode='available'
+                        startDate: toDbDate(startDate),
+                        endDate: toDbDate(endDate)
+                    })} mode={displayMode}
                 />
             )}
         />

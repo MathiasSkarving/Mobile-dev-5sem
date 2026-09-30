@@ -40,7 +40,7 @@ export default function Bookings() {
     }, [db, bookingsVersion]);
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1}}>
             <Text variant="headlineSmall" style={{ margin: 16 }}>These are your bookings:</Text>
             <FlatList
                 data={bookings}

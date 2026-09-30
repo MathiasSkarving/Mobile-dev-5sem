@@ -51,11 +51,11 @@ export const addBookingIfAvailable = async (
         return false;
     }
 
-    await db.withExclusiveTransactionAsync(async (txn) => {
-        const free = await isCarAvailableAtThisDate(txn, booking.car_id, booking.start_date, booking.end_date);
+    await db.withTransactionAsync(async () => {
+        const free = await isCarAvailableAtThisDate(db, booking.car_id, booking.start_date, booking.end_date);
         if (!free) return;
 
-        await addBooking(txn, booking);
+        await addBooking(db, booking);
         booked = true;
     });
 

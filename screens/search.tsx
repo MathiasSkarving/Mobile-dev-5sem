@@ -8,20 +8,7 @@ import {CarsStackParamList} from '../navigation/types';
 import {useNavigation} from '@react-navigation/native';
 import {View} from "react-native";
 import TypewriterSearchbar from '../components/typeWriterSearchBar';
-
-interface DateRange {
-    startDate: Date | undefined;
-    endDate: Date | undefined;
-}
-
-function formatDateRange(range: DateRange): string {
-    const formatter = new Intl.DateTimeFormat('en-GB', {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-    });
-    return formatter.format(range.startDate) + " - " + formatter.format(range.endDate);
-}
+import { DateRange, formatDateRange } from '../utils/datehelper';
 
 registerTranslation("en", enGB);
 
@@ -59,7 +46,7 @@ export default function Search() {
 
                 <TypewriterSearchbar value={searchQuery} onChangeText={setSearchQuery}/>
 
-                <Card onPress={() => setDatePickerModalVisible(true)} mode="outlined">
+                <Card style={{borderColor: "#dddddd"}} onPress={() => setDatePickerModalVisible(true)} mode="outlined">
                     <Card.Content>
                         <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                             <View style={{flexDirection: "row", gap: 12}}>

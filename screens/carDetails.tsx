@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { DatePickerModal } from 'react-native-paper-dates'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { CarsStackParamList } from '../navigation/types'
+import { toDbDate } from '../utils/datehelper'
 
 type Props = NativeStackScreenProps<CarsStackParamList, 'CarDetails'>
 
@@ -112,8 +113,8 @@ export default function CarDetails({ route, navigation }: Props) {
                     onPress={() => navigation.navigate('Checkout', {
                         car,
                         imageUrl,
-                        startDate: dateRange.startDate?.toISOString(),
-                        endDate: dateRange.endDate?.toISOString(),
+                        startDate: toDbDate(dateRange.startDate),
+                        endDate: toDbDate(dateRange.endDate),
                     })}
                 >
                     Book
