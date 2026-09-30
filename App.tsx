@@ -3,17 +3,15 @@ import { BottomNavigation, PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Search from './components/search';
-import Login from './components/login';
-import SignupScreen from './components/signup';
-import Profile from './components/profile';
+import Search from './screens/search';
+import Login from './screens/login';
+import SignupScreen from './screens/signup';
+import Profile from './screens/profile';
 import Verification from './components/verification';
-import Bookings from './components/bookings';
-import Checkout from './components/checkout';
-import CarDetails from './components/carDetails';
-import { CarsStackParamList, ProfileStackParamList } from './navigation/types';
-import { SQLiteProvider } from 'expo-sqlite';
-import { migrateDbIfNeeded } from './db/db';
+import Bookings from './screens/bookings';
+import Checkout from './screens/checkout';
+import CarDetails from './screens/carDetails';
+import { BookingsStackParamList, CarsStackParamList, ProfileStackParamList } from './navigation/types';
 import { View } from 'react-native';
 import { DatabaseProvider } from './db/dbprovider';
 import { AuthProvider, useAuth } from './auth/authContent';
@@ -66,6 +64,18 @@ function CarsTab() {
   );
 }
 
+const BookingsStack = createNativeStackNavigator<BookingsStackParamList>();
+
+function BookingsTab() {
+  return (
+    <TabContainer>
+      <BookingsStack.Navigator>
+        <BookingsStack.Screen name="Bookings" component={Bookings} options={{ headerShown: false }} />
+      </BookingsStack.Navigator>
+    </TabContainer>
+  );
+}
+
 // Lives inside AuthProvider (App itself can't use useAuth), and sends the user
 // back to Checkout once they are allowed to book
 function ReturnToCheckout({ pending, onReturn }: { pending: boolean; onReturn: () => void }) {
@@ -79,7 +89,7 @@ function ReturnToCheckout({ pending, onReturn }: { pending: boolean; onReturn: (
 const renderScene = BottomNavigation.SceneMap({
   search: CarsTab,
   profile: ProfileTab,
-  bookings: Bookings,
+  bookings: BookingsTab,
 });
 
 export default function App() {

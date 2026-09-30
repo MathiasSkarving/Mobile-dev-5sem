@@ -2,6 +2,7 @@ import * as SQLite from "expo-sqlite"
 
 import { Car, CarWithThumbnail, NewCar } from "./types"
 import { List } from "react-native-paper";
+import { toDbDate } from "../utils/datehelper";
 
 export const addCar = async (
     db: SQLite.SQLiteDatabase,
@@ -70,8 +71,8 @@ export const getAvailableCarsFromSearchQuery = async (
         if (startDate != undefined && endDate != undefined) {
             const result = await query.executeAsync<Car>({
                 $term: term,
-                $start: startDate.toISOString().slice(0, 10),
-                $end: endDate.toISOString().slice(0, 10),
+                $start: toDbDate(startDate),
+                $end: toDbDate(endDate)
             });
             return await result.getAllAsync();
         }

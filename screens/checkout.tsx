@@ -1,12 +1,14 @@
 import { BottomNavigation, Button, Card, Divider, List, Text, } from 'react-native-paper'
-import { Image, ScrollView, StyleSheet, View } from 'react-native'
+import { Alert, Image, ScrollView, StyleSheet, View } from 'react-native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { CarsStackParamList } from '../navigation/types'
 import { useDatabase } from '../db/dbprovider'
-import { addBooking } from '../db/dbbookings'
+import { addBookingIfAvailable, getBookings } from '../db/dbbookings'
 import { NewBooking } from '../db/types'
 import Bookings from './bookings'
 import { useTabs } from '../navigation/tabContext'
+import { formatDate, toDbDate } from '../utils/datehelper'
+
 import { useAuth } from '../auth/authContent'
 
 type CheckoutProps = NativeStackScreenProps<CarsStackParamList, 'Checkout'>
@@ -59,15 +61,6 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
     const { goToBookings, goToProfile } = useTabs();
     const { isLoggedIn, isVerified } = useAuth();
     const canBook = isLoggedIn && isVerified;
-
-
-    function formatDate(date: Date): string {
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
-        const year = date.getFullYear();
-
-        return `${day}-${month}-${year}`;
-    }
 
     return (
         <View style={styles.container}>
@@ -174,14 +167,27 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
         let newBooking: NewBooking = {
             name: carName,
             car_id: car.id,
-            start_date: startDate.toISOString().slice(0,10),
-            end_date: endDate.toISOString().slice(0,10),
+            start_date: toDbDate(startDate),
+            end_date: toDbDate(endDate),
             price_per_day: carPrice,
             total_price: total,
             image: imageUrl,
         }
-        addBooking(db, newBooking);
-        navigation.popToTop(); // reset the Cars stack (this still works, it's Checkout's own navigator)
-        goToBookings();
+
+        console.log('booking attempt', newBooking)
+        try {
+            const result = await addBookingIfAvailable(db, newBooking)
+            console.log('booking result', result)
+            console.log('rows after insert', await getBookings(db))
+            if (result === false) {
+                Alert.alert('Not available', 'This car is already booked for those dates.')
+                return
+            }
+            navigation.popToTop()
+            goToBookings()
+        } catch (e) {
+            console.error('booking failed', e)
+            Alert.alert('Booking failed', String(e))
+        }
     }
 }

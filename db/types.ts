@@ -13,6 +13,8 @@ export type CarImage = {
     car_id: number;
 };
 
+export type CarDisplayMode = 'booked' | 'available' | 'no_date_selected'
+
 // Dates are understood as 'YYYY-MM-DD'
 export type Booking = {
     id: number;
