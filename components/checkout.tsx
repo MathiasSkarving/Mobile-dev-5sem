@@ -1,8 +1,13 @@
-import { Button, Card, Divider, List, Text, } from 'react-native-paper'
+import { BottomNavigation, Button, Card, Divider, List, Text, } from 'react-native-paper'
 import { Image, ScrollView, StyleSheet, View } from 'react-native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { CarsStackParamList } from '../navigation/types'
-
+import { useDatabase } from '../db/dbprovider'
+import { addBooking } from '../db/dbbookings'
+import { NewBooking } from '../db/types'
+import Bookings from './bookings'
+import { useTabs } from '../navigation/tabContext'
+ 
 type CheckoutProps = NativeStackScreenProps<CarsStackParamList, 'Checkout'>
 
 const styles = StyleSheet.create({
@@ -34,6 +39,7 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
     const { car, imageUrl } = route.params
     const carName = `${car.make} ${car.model}`
     const carPrice = car.price_per_day
+    const db = useDatabase();
 
     // Falls back to today -> tomorrow if no date range was selected
     const startDate = route.params.startDate ? new Date(route.params.startDate) : new Date()
@@ -44,6 +50,8 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
     // Should be done on server and not on phone
     const days = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86_400_000))
     const total = carPrice * days
+    const { goToBookings } = useTabs();
+
 
     function formatDate(date: Date): string {
         const day = date.getDate().toString().padStart(2, '0');
@@ -117,7 +125,7 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
 
                 <Button
                     mode="contained"
-                    onPress={() => navigation.goBack()}
+                    onPress={() => book()}
                 >
                     Book {carName}
                 </Button>
@@ -131,4 +139,19 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
             </ScrollView>
         </View>
     )
+
+    async function book() {
+        let newBooking: NewBooking = {
+            name: carName,
+            car_id: car.id,
+            start_date: startDate.toISOString().slice(0,10),
+            end_date: endDate.toISOString().slice(0,10),
+            price_per_day: carPrice,
+            total_price: total,
+            image: imageUrl,
+        }
+        addBooking(db, newBooking);
+        navigation.popToTop(); // reset the Cars stack (this still works, it's Checkout's own navigator)
+        goToBookings();
+    }
 }

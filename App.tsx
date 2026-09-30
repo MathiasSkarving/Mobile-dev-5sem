@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import { BottomNavigation, PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
@@ -7,7 +7,7 @@ import Search from './components/search';
 import Login from './components/login';
 import SignupScreen from './components/signup';
 import Profile from './components/profile';
-import Bookings from './components/bookings'; 
+import Bookings from './components/bookings';
 import Checkout from './components/checkout';
 import CarDetails from './components/carDetails';
 import { CarsStackParamList, ProfileStackParamList } from './navigation/types';
@@ -16,6 +16,7 @@ import { migrateDbIfNeeded } from './db/db';
 import { View } from 'react-native';
 import { DatabaseProvider } from './db/dbprovider';
 import { AuthProvider, useAuth } from './auth/authContent';
+import { TabContext, useTabs } from './navigation/tabContext';
 
 // Paper's BottomNavigation is not a React Navigation navigator,
 // so each tab's stack needs its own container
@@ -69,24 +70,34 @@ const renderScene = BottomNavigation.SceneMap({
 
 export default function App() {
   const [index, setIndex] = useState(0);
+  const [bookingsVersion, setBookingsVersion] = useState(0);
   const [routes] = useState([
     { key: 'search', title: 'Search', focusedIcon: 'car-search', unfocusedIcon: 'car-search' },
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account' },
     { key: 'bookings', title: 'My Bookings', focusedIcon: 'car-key', unfocusedIcon: 'car-key' },
   ]);
 
-  return (
-    <PaperProvider>
+  const tabContext = useTabs();
+  
+  const goToBookings = useCallback(() => {
+    setIndex(routes.findIndex(r => r.key === 'bookings'));
+    setBookingsVersion(v => v + 1);
+  }, [routes]);
+
+  return ( 
+    <PaperProvider>    
       <AuthProvider>
         <DatabaseProvider>
           <SafeAreaProvider style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
-              <BottomNavigation
-                navigationState={{ index, routes }}
-                onIndexChange={setIndex}
-                renderScene={renderScene}
-              />
-            </View>
+            <TabContext.Provider value={{ goToBookings, bookingsVersion }}>
+              <View style={{ flex: 1 }}>
+                <BottomNavigation
+                  navigationState={{ index, routes }}
+                  onIndexChange={setIndex}
+                  renderScene={renderScene}
+                />
+              </View>
+            </TabContext.Provider>
           </SafeAreaProvider>
         </DatabaseProvider>
       </AuthProvider>
