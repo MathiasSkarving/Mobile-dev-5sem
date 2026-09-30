@@ -84,7 +84,7 @@ export default function App() {
     setBookingsVersion(v => v + 1);
   }, [routes]);
 
-  return (
+  return ( 
     <PaperProvider>
       <AuthProvider>
         <DatabaseProvider>
