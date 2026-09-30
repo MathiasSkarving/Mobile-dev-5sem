@@ -144,13 +144,14 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
                 car_id INTEGER NOT NULL,
                 start_date TEXT NOT NULL,
                 end_date TEXT NOT NULL,
+                price_per_day INTEGER NOT NULL,
+                total_price INTEGER NOT NULL,
+                image TEXT NOT NULL,
                 FOREIGN KEY(car_id) REFERENCES cars(id)
             );
         `);
         currentDbVersion = 2;
     }
-
-
 
     // Update database version
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

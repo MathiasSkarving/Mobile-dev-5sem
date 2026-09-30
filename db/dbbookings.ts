@@ -3,16 +3,33 @@ import * as SQLite from "expo-sqlite"
 
 import { Booking, NewBooking } from "./types"
 
+// Shared column list. `name` isn't stored in the bookings table,
+// it's derived from the car via the join.
+const BOOKING_SELECT = `
+    SELECT b.id, b.car_id, b.start_date, b.end_date,
+           b.price_per_day, b.total_price, b.image,
+           c.make || ' ' || c.model AS name
+    FROM bookings b
+    JOIN cars c ON c.id = b.car_id
+`;
+
 export const addBooking = async (
     db: SQLite.SQLiteDatabase,
     booking: NewBooking
 ) => {
     const insertQuery = await db.prepareAsync(`
-        INSERT INTO bookings (car_id, start_date, end_date)
-        VALUES (?, ?, ?)
+        INSERT INTO bookings (car_id, start_date, end_date, price_per_day, total_price, image)
+        VALUES (?, ?, ?, ?, ?, ?)
     `);
 
-    const values = [booking.car_id, booking.start_date, booking.end_date];
+    const values = [
+        booking.car_id,
+        booking.start_date,
+        booking.end_date,
+        booking.price_per_day,
+        booking.total_price,
+        booking.image ?? '',
+    ];
 
     try {
         return await insertQuery.executeAsync(values);
@@ -49,9 +66,8 @@ export const getBookings = async (
     db: SQLite.SQLiteDatabase
 ): Promise<Booking[]> => {
     const query = await db.prepareAsync(`
-        SELECT id, car_id, start_date, end_date
-        FROM bookings
-        ORDER BY start_date ASC
+        ${BOOKING_SELECT}
+        ORDER BY b.start_date ASC
     `);
 
     try {
@@ -70,10 +86,9 @@ export const getBookingsForCar = async (
     carId: number
 ): Promise<Booking[]> => {
     const query = await db.prepareAsync(`
-        SELECT id, car_id, start_date, end_date
-        FROM bookings
-        WHERE car_id = ?
-        ORDER BY start_date ASC
+        ${BOOKING_SELECT}
+        WHERE b.car_id = ?
+        ORDER BY b.start_date ASC
     `);
 
     try {
@@ -92,9 +107,8 @@ export const getBooking = async (
     id: number
 ): Promise<Booking | null> => {
     const query = await db.prepareAsync(`
-        SELECT id, car_id, start_date, end_date
-        FROM bookings
-        WHERE id = ?
+        ${BOOKING_SELECT}
+        WHERE b.id = ?
     `);
 
     try {
@@ -112,10 +126,10 @@ export const updateBooking = async (
     db: SQLite.SQLiteDatabase,
     updatedBooking: Booking
 ) => {
-
     const updateQuery = await db.prepareAsync(`
         UPDATE bookings
-        SET car_id = ?, start_date = ?, end_date = ?
+        SET car_id = ?, start_date = ?, end_date = ?,
+            price_per_day = ?, total_price = ?, image = ?
         WHERE id = ?
     `);
 
@@ -123,6 +137,9 @@ export const updateBooking = async (
         updatedBooking.car_id,
         updatedBooking.start_date,
         updatedBooking.end_date,
+        updatedBooking.price_per_day,
+        updatedBooking.total_price,
+        updatedBooking.image ?? '',
         updatedBooking.id,
     ];
 
