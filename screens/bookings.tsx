@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDatabase } from '../db/dbprovider';
 import { Booking, CarWithThumbnail } from '../db/types';
-import { BookingItem } from './bookingItem';
+import { BookingItem } from '../components/bookingItem';
 import { getBookings } from '../db/dbbookings';
 import { useTabs } from '../navigation/tabContext';
 
