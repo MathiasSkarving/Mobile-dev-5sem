@@ -3,7 +3,7 @@ import { Image, ScrollView, StyleSheet, View } from 'react-native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { CarsStackParamList } from '../navigation/types'
 import { useDatabase } from '../db/dbprovider'
-import { addBooking } from '../db/dbbookings'
+import { addBookingIfAvailable } from '../db/dbbookings'
 import { NewBooking } from '../db/types'
 import Bookings from './bookings'
 import { useTabs } from '../navigation/tabContext'
@@ -149,7 +149,7 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
             total_price: total,
             image: imageUrl,
         }
-        addBooking(db, newBooking);
+        addBookingIfAvailable(db, newBooking);
         navigation.popToTop(); // reset the Cars stack (this still works, it's Checkout's own navigator)
         goToBookings();
     }

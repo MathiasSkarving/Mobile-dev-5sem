@@ -13,7 +13,7 @@ const BOOKING_SELECT = `
     JOIN cars c ON c.id = b.car_id
 `;
 
-export const addBooking = async (
+const addBooking = async (
     db: SQLite.SQLiteDatabase,
     booking: NewBooking
 ) => {
@@ -122,7 +122,7 @@ export const getBooking = async (
     }
 }
 
-export const updateBooking = async (
+const updateBooking = async (
     db: SQLite.SQLiteDatabase,
     updatedBooking: Booking
 ) => {
