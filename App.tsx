@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { BottomNavigation, PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import Search from './components/search';
 import Login from './components/login';
 import SignupScreen from './components/signup';
 import Profile from './components/profile';
+import Verification from './components/verification';
 import Bookings from './components/bookings';
 import Checkout from './components/checkout';
 import CarDetails from './components/carDetails';
@@ -36,7 +37,10 @@ function ProfileTab() {
     <TabContainer>
       <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
         {isLoggedIn ? (
-          <ProfileStack.Screen name="Profile" component={Profile} />
+          <>
+            <ProfileStack.Screen name="Profile" component={Profile} />
+            <ProfileStack.Screen name="Verification" component={Verification} />
+          </>
         ) : (
           <>
             <ProfileStack.Screen name="Login" component={Login} />
@@ -62,6 +66,16 @@ function CarsTab() {
   );
 }
 
+// Lives inside AuthProvider (App itself can't use useAuth), and sends the user
+// back to Checkout once they are allowed to book
+function ReturnToCheckout({ pending, onReturn }: { pending: boolean; onReturn: () => void }) {
+  const { isLoggedIn, isVerified } = useAuth();
+  useEffect(() => {
+    if (pending && isLoggedIn && isVerified) onReturn();
+  }, [pending, isLoggedIn, isVerified, onReturn]);
+  return null;
+}
+
 const renderScene = BottomNavigation.SceneMap({
   search: CarsTab,
   profile: ProfileTab,
@@ -84,16 +98,37 @@ export default function App() {
     setBookingsVersion(v => v + 1);
   }, [routes]);
 
-  return ( 
+  // Set when Checkout sends the user to log in / verify, so we can bring them back afterwards
+  const [returnToCheckout, setReturnToCheckout] = useState(false);
+
+  const goToProfile = useCallback(() => {
+    setIndex(routes.findIndex(r => r.key === 'profile'));
+    setReturnToCheckout(true);
+  }, [routes]);
+
+  const backToCheckout = useCallback(() => {
+    // Checkout is still on top of the Cars stack, so switching tab is enough
+    setIndex(routes.findIndex(r => r.key === 'search'));
+    setReturnToCheckout(false);
+  }, [routes]);
+
+  // Picking a tab manually means the user gave up on the booking
+  const onIndexChange = useCallback((i: number) => {
+    setIndex(i);
+    setReturnToCheckout(false);
+  }, []);
+
+  return (
     <PaperProvider>    
       <AuthProvider>
         <DatabaseProvider>
           <SafeAreaProvider style={{ flex: 1 }}>
-            <TabContext.Provider value={{ goToBookings, bookingsVersion }}>
+            <TabContext.Provider value={{ goToBookings, goToProfile, bookingsVersion }}>
+              <ReturnToCheckout pending={returnToCheckout} onReturn={backToCheckout} />
               <View style={{ flex: 1 }}>
                 <BottomNavigation
                   navigationState={{ index, routes }}
-                  onIndexChange={setIndex}
+                  onIndexChange={onIndexChange}
                   renderScene={renderScene}
                 />
               </View>
