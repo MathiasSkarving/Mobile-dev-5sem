@@ -7,9 +7,10 @@ interface CarItemProps {
     car: CarWithThumbnail
     onPressDetails: () => void
     onPressBook: () => void
+    mode: "booked" | "available"
 }
 
-export default function CarItem({ car, onPressDetails, onPressBook }: CarItemProps) {
+export default function CarItem({ car, onPressDetails, onPressBook, mode}: CarItemProps) {
     const windowWidth = Dimensions.get('window').width
     const windowHeight = Dimensions.get('window').height
 
@@ -18,11 +19,12 @@ export default function CarItem({ car, onPressDetails, onPressBook }: CarItemPro
             mode="elevated"
             style={{ width: windowWidth * 0.9, alignSelf: 'center', marginBottom: windowHeight * 0.02 }}
         >
-            {car.thumbnail_url && (
+            {mode === "available"} ? {car.thumbnail_url && (
                 <Pressable onPress={onPressDetails}>
                     <Card.Cover source={{ uri: car.thumbnail_url }} />
                 </Pressable>
-            )}
+            )} : {}
+
             <Card.Title
                 title={`${car.make} ${car.model}`}
                 titleVariant="titleMedium"
@@ -33,11 +35,14 @@ export default function CarItem({ car, onPressDetails, onPressBook }: CarItemPro
                     </Text>
                 )}
             />
+
+            {mode === "available"} ? {
             <Card.Actions>
                 <Button onPress={onPressBook} mode="contained" icon="car-key">
                     Book
                 </Button>
             </Card.Actions>
+        } : {}
         </Card>
     )
 }

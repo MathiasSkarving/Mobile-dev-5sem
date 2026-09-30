@@ -78,7 +78,7 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
                         imageUrl: item.thumbnail_url ?? undefined,
                         startDate: startDate?.toISOString(),
                         endDate: endDate?.toISOString(),
-                    })}
+                    })} mode='available'
                 />
             )}
         />
