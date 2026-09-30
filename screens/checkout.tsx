@@ -9,6 +9,8 @@ import Bookings from './bookings'
 import { useTabs } from '../navigation/tabContext'
 import { formatDate, toDbDate } from '../utils/datehelper'
 
+import { useAuth } from '../auth/authContent'
+
 type CheckoutProps = NativeStackScreenProps<CarsStackParamList, 'Checkout'>
 
 const styles = StyleSheet.create({
@@ -34,6 +36,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
+    // Card.Title has a fixed min height, so a two-line subtitle needs extra room
+    gateTitle: {
+        paddingTop: 16,
+        paddingBottom: 8,
+    },
 })
 
 export default function Checkout({ route, navigation }: CheckoutProps) {
@@ -51,7 +58,9 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
     // Should be done on server and not on phone
     const days = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86_400_000))
     const total = carPrice * days
-    const { goToBookings } = useTabs();
+    const { goToBookings, goToProfile } = useTabs();
+    const { isLoggedIn, isVerified } = useAuth();
+    const canBook = isLoggedIn && isVerified;
 
     return (
         <View style={styles.container}>
@@ -115,9 +124,30 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
                     </Card.Content>
                 </Card>
 
+                {!canBook && (
+                    <Card mode="outlined">
+                        <Card.Title
+                            title={isLoggedIn ? 'Verify your account' : 'Log in to book'}
+                            subtitle={isLoggedIn
+                                ? 'You need a verified driving license to book a car'
+                                : 'You need to be logged in and verified to book a car'}
+                            subtitleNumberOfLines={2}
+                            style={styles.gateTitle}
+                            titleStyle={{ fontSize: 18, fontWeight: '600' }}
+                            left={props => <List.Icon {...props} icon={isLoggedIn ? 'check-decagram' : 'account-alert'} />}
+                        />
+                        <Card.Actions>
+                            <Button onPress={goToProfile}>
+                                {isLoggedIn ? 'Verify account' : 'Log in'}
+                            </Button>
+                        </Card.Actions>
+                    </Card>
+                )}
+
                 <Button
                     mode="contained"
                     onPress={() => book()}
+                    disabled={!canBook}
                 >
                     Book {carName}
                 </Button>
@@ -133,6 +163,7 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
     )
 
     async function book() {
+        if (!canBook) return;
         let newBooking: NewBooking = {
             name: carName,
             car_id: car.id,

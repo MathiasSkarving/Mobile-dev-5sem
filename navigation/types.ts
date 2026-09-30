@@ -4,6 +4,7 @@ export type ProfileStackParamList = {
   Login: undefined;
   Signup: undefined;
   Profile: undefined;
+  Verification: undefined;
 };
 
 export type CarsStackParamList = {
