@@ -85,7 +85,7 @@ export default function App() {
   }, [routes]);
 
   return ( 
-    <PaperProvider>  
+    <PaperProvider>    
       <AuthProvider>
         <DatabaseProvider>
           <SafeAreaProvider style={{ flex: 1 }}>
