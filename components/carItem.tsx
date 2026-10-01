@@ -1,7 +1,7 @@
 // components/CarItem.tsx
-import { Pressable, Dimensions } from 'react-native'
-import { Button, Card, Text } from 'react-native-paper'
-import { CarDisplayMode, CarWithThumbnail } from '../db/types'
+import {Pressable, View} from 'react-native'
+import {Button, Card, Text} from 'react-native-paper'
+import {CarDisplayMode, CarWithThumbnail} from '../db/types'
 
 interface CarItemProps {
     car: CarWithThumbnail,
@@ -10,37 +10,58 @@ interface CarItemProps {
     mode: CarDisplayMode
 }
 
-export default function CarItem({ car, onPressDetails, onPressBook, mode }: CarItemProps) {
-    const windowWidth = Dimensions.get('window').width
-    const windowHeight = Dimensions.get('window').height
+export default function CarItem({car, onPressDetails, onPressBook, mode}: CarItemProps) {
 
     return (
-        <Card
-            mode="outlined"
-            style={{ width: windowWidth * 0.9, alignSelf: 'center', marginBottom: windowHeight * 0.02, borderColor: "#dddddd" }}
-            >
+        <View style={{
+            justifyContent: 'center',
+            margin: 20,
+            gap: 2
+        }}>
 
-            {car.thumbnail_url && (
-                <Pressable onPress={onPressDetails} disabled={mode === "no_date_selected"}>
-                    <Card.Cover source={{ uri: car.thumbnail_url }} />
-                </Pressable>
+            {car.promotional_text && (mode != "booked") && (
+                <Text
+                    style={{
+                        backgroundColor: "#ffdf00",
+                        textAlign: "center",
+                        borderRadius: 10,
+                        borderColor: "#dddddd"
+                    }}
+                    variant="headlineMedium">
+                    {car.promotional_text}
+                </Text>
             )}
 
-            <Card.Title
-                title={`${car.make} ${car.model}`}
-                titleVariant="titleMedium"
-                subtitle={car.electric ? 'Electric' : undefined}
-            />
+            <Card
+                mode="outlined"
+                style={{
+                    borderColor: "#dddddd"
+                }}
+            >
 
-            <Card.Actions style={{justifyContent: "space-between", alignItems: 'center'}}>
-                <Text variant="titleMedium">
-                    {car.price_per_day} kr./day
-                </Text>
+                {car.thumbnail_url && (
+                    <Pressable onPress={onPressDetails} disabled={mode === "no_date_selected"}>
+                        <Card.Cover source={{uri: car.thumbnail_url}}/>
+                    </Pressable>
+                )}
 
-                <Button onPress={onPressBook} mode="contained" icon="car-key" disabled={mode === "no_date_selected"}>
-                    Book
-                </Button>
-            </Card.Actions>
-        </Card>
+                <Card.Title
+                    title={`${car.make} ${car.model}`}
+                    titleVariant="titleMedium"
+                    subtitle={car.electric ? 'Electric' : undefined}
+                />
+
+                <Card.Actions style={{justifyContent: "space-between", alignItems: 'center'}}>
+                    <Text variant="titleMedium">
+                        {car.price_per_day} kr./day
+                    </Text>
+
+                    <Button onPress={onPressBook} mode="contained" icon="car-key"
+                            disabled={mode === "no_date_selected"}>
+                        Book
+                    </Button>
+                </Card.Actions>
+            </Card>
+        </View>
     )
 }
