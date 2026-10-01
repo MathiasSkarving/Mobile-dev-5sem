@@ -1,5 +1,5 @@
 import { type SQLiteDatabase } from 'expo-sqlite';
-import { Car, NewCar } from './types';
+import { NewCar } from './types';
 import { addCar } from './dbcars'
 import { addImage, setThumbnail } from './dbimages'
 
@@ -44,7 +44,8 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
                 make TEXT NOT NULL,
                 model TEXT NOT NULL,
                 price_per_day NUMBER NOT NULL DEFAULT 0,
-                electric BOOLEAN
+                electric BOOLEAN,
+                promotional_text TEXT
             );
         `);
 
@@ -73,31 +74,35 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
                 model: "Miata",
                 price_per_day: 290,
                 electric: false,
+                promotional_text: "Check the price!",
             },
             {
                 make: "Toyota",
                 model: "Supra",
                 price_per_day: 490,
                 electric: false,
+                promotional_text: "",
             },
             {
                 make: "Mercedes-Benz",
                 model: "E-Klasse AMG",
                 price_per_day: 600,
                 electric: false,
+                promotional_text: "",
             },
             {
                 make: "Volkswagen",
                 model: "Golf 4 GTI",
                 price_per_day: 500,
                 electric: false,
-
+                promotional_text: "Popular!",
             },
             {
                 make: "Skoda",
                 model: "Octavia",
                 price_per_day: 300,
                 electric: false,
+                promotional_text: "",
             },
         ]
 
