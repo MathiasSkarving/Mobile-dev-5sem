@@ -6,8 +6,10 @@
     "@expo/metro-runtime": "~57.0.16",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-vector-icons/material-design-icons": "^13.1.4",
+    "@react-navigation/bottom-tabs": "^7.20.0",
     "@react-navigation/native": "^7.4.1",
     "@react-navigation/native-stack": "^7.19.2",
+    "expo": "~57.0.24",
     "expo-sqlite": "~57.0.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -16,8 +18,7 @@
     "react-native-paper-dates": "^0.24.0",
     "react-native-safe-area-context": "^5.10.0",
     "react-native-web": "^0.21.2",
-    "react-navigation": "^5.0.0",
-    "expo": "~57.0.24"
+    "react-navigation": "^5.0.0"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",
