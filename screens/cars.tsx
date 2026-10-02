@@ -28,14 +28,20 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
 
     console.log('availability args', { searchQuery, startDate, endDate })
 
-    // Also reloads when coming back to Search, so cars booked meanwhile drop out
+    // Compare dates by value, so a new Date object for the same day doesn't trigger a reload
+    const startTime = startDate?.getTime();
+    const endTime = endDate?.getTime();
+
+    // Also reloads when coming back to Search, so cars booked meanwhile drop out.
+    // The old list stays visible while reloading, so the images don't flash
     useFocusEffect(useCallback(() => {
         let cancelled = false;
 
-        setLoading(true);
         setError(null);
         if (searchQuery != undefined) {
-            getAvailableCarsWithThumbnailFromSearchQuery(db, searchQuery, startDate, endDate)
+            const start = startTime === undefined ? undefined : new Date(startTime);
+            const end = endTime === undefined ? undefined : new Date(endTime);
+            getAvailableCarsWithThumbnailFromSearchQuery(db, searchQuery, start, end)
                 .then((result) => {
                     if (!cancelled) setCars(result);
                 })
@@ -49,7 +55,7 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
         return () => {
             cancelled = true;
         };
-    }, [db, searchQuery, startDate, endDate]));
+    }, [db, searchQuery, startTime, endTime]));
 
     if (loading) {
         return <ActivityIndicator style={{ marginTop: windowHeight * 0.05 }} />;
