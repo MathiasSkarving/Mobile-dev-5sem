@@ -32,8 +32,7 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
     const startTime = startDate?.getTime();
     const endTime = endDate?.getTime();
 
-    // Also reloads when coming back to Search, so cars booked meanwhile drop out.
-    // The old list stays visible while reloading, so the images don't flash
+    // Also reloads when coming back to Search, so cars booked meanwhile drop out
     useFocusEffect(useCallback(() => {
         let cancelled = false;
 
@@ -52,8 +51,12 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
                     if (!cancelled) setLoading(false);
                 });
         }
+        // Runs on blur (and before a new query). The screen stays mounted in the background,
+        // so the old list is cleared here - otherwise it is shown for a few frames on return
         return () => {
             cancelled = true;
+            setCars([]);
+            setLoading(true);
         };
     }, [db, searchQuery, startTime, endTime]));
 
