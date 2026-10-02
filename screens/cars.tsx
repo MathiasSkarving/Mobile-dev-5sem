@@ -1,14 +1,13 @@
 import { ActivityIndicator, Button, Card, Text } from 'react-native-paper'
 import { Dimensions, FlatList, Pressable } from 'react-native'
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDatabase } from '../db/dbprovider';
 import { getAvailableCarsFromSearchQuery, getAvailableCarsWithThumbnailFromSearchQuery, getCarsWithThumbnails } from '../db/dbcars';
 import { CarDisplayMode, CarWithThumbnail } from '../db/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { CarsStackParamList } from '../navigation/types';
 import CarItem from '../components/carItem';
-import { useTabs } from '../navigation/tabContext';
 import { toDbDate } from '../utils/datehelper';
 
 interface CarsProps {
@@ -27,17 +26,21 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
     const windowHeight = Dimensions.get('window').height;
     const displayMode: CarDisplayMode = startDate === undefined ? 'no_date_selected' : 'available'
 
-    const { bookingsVersion } = useTabs()
-
     console.log('availability args', { searchQuery, startDate, endDate })
 
-    useEffect(() => {
+    // Compare dates by value, so a new Date object for the same day doesn't trigger a reload
+    const startTime = startDate?.getTime();
+    const endTime = endDate?.getTime();
+
+    // Also reloads when coming back to Search, so cars booked meanwhile drop out
+    useFocusEffect(useCallback(() => {
         let cancelled = false;
 
-        setLoading(true);
         setError(null);
         if (searchQuery != undefined) {
-            getAvailableCarsWithThumbnailFromSearchQuery(db, searchQuery, startDate, endDate)
+            const start = startTime === undefined ? undefined : new Date(startTime);
+            const end = endTime === undefined ? undefined : new Date(endTime);
+            getAvailableCarsWithThumbnailFromSearchQuery(db, searchQuery, start, end)
                 .then((result) => {
                     if (!cancelled) setCars(result);
                 })
@@ -48,7 +51,14 @@ export default function Cars({ searchQuery, startDate, endDate }: CarsProps) {
                     if (!cancelled) setLoading(false);
                 });
         }
-    }, [db, searchQuery, startDate, endDate, bookingsVersion]);
+        // Runs on blur (and before a new query). The screen stays mounted in the background,
+        // so the old list is cleared here - otherwise it is shown for a few frames on return
+        return () => {
+            cancelled = true;
+            setCars([]);
+            setLoading(true);
+        };
+    }, [db, searchQuery, startTime, endTime]));
 
     if (loading) {
         return <ActivityIndicator style={{ marginTop: windowHeight * 0.05 }} />;

@@ -1,17 +1,15 @@
-import { BottomNavigation, Button, Card, Divider, List, Text, } from 'react-native-paper'
+import { Button, Card, Divider, List, Text, } from 'react-native-paper'
 import { Alert, Image, ScrollView, StyleSheet, View } from 'react-native'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { CarsStackParamList } from '../navigation/types'
+import { useEffect, useState } from 'react'
+import { CarsTabScreenProps } from '../navigation/types'
 import { useDatabase } from '../db/dbprovider'
 import { addBookingIfAvailable, getBookings } from '../db/dbbookings'
 import { NewBooking } from '../db/types'
-import Bookings from './bookings'
-import { useTabs } from '../navigation/tabContext'
 import { formatDate, toDbDate } from '../utils/datehelper'
 
 import { useAuth } from '../auth/authContent'
 
-type CheckoutProps = NativeStackScreenProps<CarsStackParamList, 'Checkout'>
+type CheckoutProps = CarsTabScreenProps<'Checkout'>
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F5F5' },
@@ -58,9 +56,32 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
     // Should be done on server and not on phone
     const days = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86_400_000))
     const total = carPrice * days
-    const { goToBookings, goToProfile } = useTabs();
     const { isLoggedIn, isVerified } = useAuth();
     const canBook = isLoggedIn && isVerified;
+
+    // Set when the user is sent to log in / verify, so we can bring them back afterwards
+    const [returnAfterAuth, setReturnAfterAuth] = useState(false);
+
+    function goToProfile() {
+        setReturnAfterAuth(true);
+        navigation.navigate('ProfileTab', { screen: isLoggedIn ? 'Verification' : 'Login' });
+    }
+
+    useEffect(() => {
+        if (!returnAfterAuth || !canBook) return;
+        setReturnAfterAuth(false);
+        // Checkout is still on top of the Search stack, so switching tab is enough
+        navigation.navigate('SearchTab');
+    }, [returnAfterAuth, canBook, navigation]);
+
+    // Picking another tab than Profile means the user gave up on the booking
+    useEffect(() => {
+        if (!returnAfterAuth) return;
+        return navigation.getParent()?.addListener('state', (e) => {
+            const tabs = e.data.state;
+            if (tabs.routes[tabs.index].name !== 'ProfileTab') setReturnAfterAuth(false);
+        });
+    }, [returnAfterAuth, navigation]);
 
     return (
         <View style={styles.container}>
@@ -183,8 +204,8 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
                 Alert.alert('Not available', 'This car is already booked for those dates.')
                 return
             }
-            navigation.popToTop()
-            goToBookings()
+            navigation.popToTop() // reset the Search stack before leaving it
+            navigation.navigate('BookingsTab', { screen: 'Bookings' })
         } catch (e) {
             console.error('booking failed', e)
             Alert.alert('Booking failed', String(e))
