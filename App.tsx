@@ -3,14 +3,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CommonActions, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Search from './components/search';
-import Login from './components/login';
-import SignupScreen from './components/signup';
-import Profile from './components/profile';
+import Search from './screens/search';
+import Login from './screens/login';
+import SignupScreen from './screens/signup';
+import Profile from './screens/profile';
 import Verification from './components/verification';
-import Bookings from './components/bookings';
-import Checkout from './components/checkout';
-import CarDetails from './components/carDetails';
+import Bookings from './screens/bookings';
+import Checkout from './screens/checkout';
+import CarDetails from './screens/carDetails';
 import {
   BookingsStackParamList,
   CarsStackParamList,

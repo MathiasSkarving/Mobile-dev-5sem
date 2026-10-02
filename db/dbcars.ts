@@ -1,18 +1,18 @@
 import * as SQLite from "expo-sqlite"
 
 import { Car, CarWithThumbnail, NewCar } from "./types"
-import { List } from "react-native-paper";
+import { toDbDate } from "../utils/datehelper";
 
 export const addCar = async (
     db: SQLite.SQLiteDatabase,
     car: NewCar
 ) => {
     const insertQuery = await db.prepareAsync(`
-        INSERT INTO cars (make, model, price_per_day, electric)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO cars (make, model, price_per_day, electric, promotional_text)
+        VALUES (?, ?, ?, ?, ?)
     `);
 
-    const values = [car.make, car.model, car.price_per_day, car.electric];
+    const values = [car.make, car.model, car.price_per_day, car.electric, car.promotional_text];
 
     try {
         return await insertQuery.executeAsync(values);
@@ -28,7 +28,7 @@ export const getCars = async (
     db: SQLite.SQLiteDatabase,
 ): Promise<Car[]> => {
     const query = await db.prepareAsync(`
-        SELECT id, make, model, price_per_day, electric
+        SELECT id, make, model, price_per_day, electric, promotional_text
         FROM cars
     `);
 
@@ -70,8 +70,8 @@ export const getAvailableCarsFromSearchQuery = async (
         if (startDate != undefined && endDate != undefined) {
             const result = await query.executeAsync<Car>({
                 $term: term,
-                $start: startDate.toISOString().slice(0, 10),
-                $end: endDate.toISOString().slice(0, 10),
+                $start: toDbDate(startDate),
+                $end: toDbDate(endDate)
             });
             return await result.getAllAsync();
         }
@@ -178,7 +178,7 @@ export const updateCar = async (
 ) => {
     const updateQuery = await db.prepareAsync(`
         UPDATE cars
-        SET make = ?, model = ?, price_per_day = ?
+        SET make = ?, model = ?, price_per_day = ?, promotional_text = ?
         WHERE id = ?
     `);
 
@@ -187,6 +187,7 @@ export const updateCar = async (
         updatedCar.model,
         updatedCar.price_per_day,
         updatedCar.id,
+        updatedCar.promotional_text,
     ];
 
     try {

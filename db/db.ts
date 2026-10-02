@@ -1,5 +1,5 @@
 import { type SQLiteDatabase } from 'expo-sqlite';
-import { Car, NewCar } from './types';
+import { NewCar } from './types';
 import { addCar } from './dbcars'
 import { addImage, setThumbnail } from './dbimages'
 
@@ -44,7 +44,8 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
                 make TEXT NOT NULL,
                 model TEXT NOT NULL,
                 price_per_day NUMBER NOT NULL DEFAULT 0,
-                electric BOOLEAN
+                electric BOOLEAN,
+                promotional_text TEXT
             );
         `);
 
@@ -69,56 +70,58 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
         // Make some random car entries
         let carsToAdd: NewCar[] = [
             {
-                make: "Volvo",
-                model: "B18",
-                price_per_day: 140,
+                make: "Mazda",
+                model: "Miata",
+                price_per_day: 290,
                 electric: false,
+                promotional_text: "Check the price!",
             },
             {
                 make: "Toyota",
-                model: "Yaris",
-                price_per_day: 190,
+                model: "Supra",
+                price_per_day: 490,
                 electric: false,
+                promotional_text: "",
             },
             {
-                make: "Mercedes",
-                model: "S-Class Maybach",
-                price_per_day: 900,
+                make: "Mercedes-Benz",
+                model: "E-Klasse AMG",
+                price_per_day: 600,
                 electric: false,
+                promotional_text: "",
             },
             {
-                make: "VW",
-                model: "Golf 3",
-                price_per_day: 200,
+                make: "Volkswagen",
+                model: "Golf 4 GTI",
+                price_per_day: 500,
                 electric: false,
-
+                promotional_text: "Popular!",
             },
             {
                 make: "Skoda",
                 model: "Octavia",
                 price_per_day: 300,
                 electric: false,
+                promotional_text: "",
             },
         ]
 
         // Seed images, keyed by make, so each car gets a matching placeholder
         const imageUrlsByMake: Record<string, string[]> = {
-            Volvo: [
-                "https://picsum.photos/seed/volvo-b18-1/800/600",
-                "https://picsum.photos/seed/volvo-b18-2/800/600",
+            Mazda: [
+                "https://images.unsplash.com/photo-1610884447640-42b8ec61a933?q=80&w=1026&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             ],
             Toyota: [
-                "https://picsum.photos/seed/toyota-yaris-1/800/600",
+                "https://images.unsplash.com/photo-1762097359769-c4588ac7b759?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             ],
-            Mercedes: [
-                "https://picsum.photos/seed/mercedes-maybach-1/800/600",
-                "https://picsum.photos/seed/mercedes-maybach-2/800/600",
+            'Mercedes-Benz': [
+                "https://images.unsplash.com/photo-1624085568108-36410cfe4d24?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             ],
-            VW: [
-                "https://picsum.photos/seed/vw-golf3-1/800/600",
+            Volkswagen: [
+                "https://images.unsplash.com/flagged/photo-1571380513450-edea6ae8344a?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             ],
             Skoda: [
-                "https://picsum.photos/seed/skoda-octavia-1/800/600",
+                "https://images.unsplash.com/photo-1594502167666-3e87b8c16343?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             ],
         };
 

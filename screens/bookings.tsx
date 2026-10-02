@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDatabase } from '../db/dbprovider';
-import { Booking } from '../db/types';
-import { BookingItem } from './bookingItem';
+import { Booking, CarWithThumbnail } from '../db/types';
+import { BookingItem } from '../components/bookingItem';
 import { getBookings } from '../db/dbbookings';
 
 export default function Bookings() {
@@ -38,7 +38,7 @@ export default function Bookings() {
     }, [db]));
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1}}>
             <Text variant="headlineSmall" style={{ margin: 16 }}>These are your bookings:</Text>
             <FlatList
                 data={bookings}

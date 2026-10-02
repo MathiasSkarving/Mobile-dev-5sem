@@ -13,7 +13,7 @@ const BOOKING_SELECT = `
     JOIN cars c ON c.id = b.car_id
 `;
 
-export const addBooking = async (
+const addBooking = async (
     db: SQLite.SQLiteDatabase,
     booking: NewBooking
 ) => {
@@ -51,11 +51,11 @@ export const addBookingIfAvailable = async (
         return false;
     }
 
-    await db.withExclusiveTransactionAsync(async (txn) => {
-        const free = await isCarAvailableAtThisDate(txn, booking.car_id, booking.start_date, booking.end_date);
+    await db.withTransactionAsync(async () => {
+        const free = await isCarAvailableAtThisDate(db, booking.car_id, booking.start_date, booking.end_date);
         if (!free) return;
 
-        await addBooking(txn, booking);
+        await addBooking(db, booking);
         booked = true;
     });
 
@@ -122,7 +122,7 @@ export const getBooking = async (
     }
 }
 
-export const updateBooking = async (
+const updateBooking = async (
     db: SQLite.SQLiteDatabase,
     updatedBooking: Booking
 ) => {

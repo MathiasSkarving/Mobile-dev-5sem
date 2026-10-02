@@ -5,6 +5,7 @@ export type Car = {
     model: string;
     price_per_day: number;
     electric: boolean;
+    promotional_text: string;
 };
 
 export type CarImage = {
@@ -12,6 +13,8 @@ export type CarImage = {
     url: string;
     car_id: number;
 };
+
+export type CarDisplayMode = 'booked' | 'available' | 'no_date_selected'
 
 // Dates are understood as 'YYYY-MM-DD'
 export type Booking = {
