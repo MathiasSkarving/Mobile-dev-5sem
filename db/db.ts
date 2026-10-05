@@ -92,7 +92,7 @@ export const migrateDbIfNeeded = async (db: SQLiteDatabase) => {
             },
             {
                 make: "Volkswagen",
-                model: "Golf 4 GTI",
+                model: "Golf 7 GTI",
                 price_per_day: 500,
                 electric: false,
                 promotional_text: "Popular!",
