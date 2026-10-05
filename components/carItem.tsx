@@ -46,10 +46,11 @@ export default function CarItem({car, onPressDetails, onPressBook, mode}: CarIte
             margin: 20,
         }}>
             <Card
-                mode="outlined"
+                mode="contained"
                 style={{
                     borderColor: showPromo ? PROMO.border : "#dddddd",
                     borderWidth,
+                    backgroundColor: showPromo ? "#FFFBFE" : undefined,
                 }}
             >
                 {/* Part of the card, so it reads as a label on this car and not a separate ad */}
