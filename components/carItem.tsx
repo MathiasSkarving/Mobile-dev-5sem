@@ -1,7 +1,30 @@
 // components/CarItem.tsx
-import {Pressable, View} from 'react-native'
-import {Button, Card, Text} from 'react-native-paper'
+import {Pressable, StyleSheet, View} from 'react-native'
+import {Button, Card, Icon, Text, useTheme} from 'react-native-paper'
 import {CarDisplayMode, CarWithThumbnail} from '../db/types'
+
+// Warm accent, so promoted cars stand out from the purple theme
+const PROMO = {
+    background: '#FFE08A',
+    border: '#F2B600',
+    text: '#4A3600',
+}
+
+const styles = StyleSheet.create({
+    promoBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        backgroundColor: PROMO.background,
+    },
+    promoText: {
+        color: PROMO.text,
+        fontWeight: '700',
+        letterSpacing: 0.5,
+    },
+})
 
 interface CarItemProps {
     car: CarWithThumbnail,
@@ -11,37 +34,41 @@ interface CarItemProps {
 }
 
 export default function CarItem({car, onPressDetails, onPressBook, mode}: CarItemProps) {
+    const theme = useTheme();
+    const showPromo = !!car.promotional_text && mode != "booked";
+    const borderWidth = showPromo ? 2 : 1;
+    // MD3 cards are rounded 3x the theme roundness - minus the border, so the banner fits inside it
+    const innerRadius = theme.roundness * 3 - borderWidth;
 
     return (
         <View style={{
             justifyContent: 'center',
             margin: 20,
-            gap: 2
         }}>
-
-            {car.promotional_text && (mode != "booked") && (
-                <Text
-                    style={{
-                        backgroundColor: "#ffdf00",
-                        textAlign: "center",
-                        borderRadius: 10,
-                        borderColor: "#dddddd"
-                    }}
-                    variant="headlineMedium">
-                    {car.promotional_text}
-                </Text>
-            )}
-
             <Card
                 mode="outlined"
                 style={{
-                    borderColor: "#dddddd"
+                    borderColor: showPromo ? PROMO.border : "#dddddd",
+                    borderWidth,
                 }}
             >
+                {/* Part of the card, so it reads as a label on this car and not a separate ad */}
+                {showPromo && (
+                    <View style={[styles.promoBanner, {borderTopLeftRadius: innerRadius, borderTopRightRadius: innerRadius}]}>
+                        <Icon source="tag" size={18} color={PROMO.text}/>
+                        <Text variant="labelLarge" style={styles.promoText}>
+                            {car.promotional_text.toUpperCase()}
+                        </Text>
+                    </View>
+                )}
 
                 {car.thumbnail_url && (
                     <Pressable onPress={onPressDetails} disabled={mode === "no_date_selected"}>
-                        <Card.Cover source={{uri: car.thumbnail_url}}/>
+                        {/* Square top corners under the banner, so the two meet without gaps */}
+                        <Card.Cover
+                            source={{uri: car.thumbnail_url}}
+                            style={showPromo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : undefined}
+                        />
                     </Pressable>
                 )}
 
