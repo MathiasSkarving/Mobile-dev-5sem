@@ -12,7 +12,7 @@ export const addCar = async (
         VALUES (?, ?, ?, ?, ?)
     `);
 
-    const values = [car.make, car.model, car.price_per_day, car.electric, car.promotional_text];
+    const values = [car.make, car.model, car.price_per_day, car.electric, car.promotional_text ?? ""];
 
     try {
         return await insertQuery.executeAsync(values);
@@ -187,7 +187,7 @@ export const updateCar = async (
         updatedCar.model,
         updatedCar.price_per_day,
         updatedCar.id,
-        updatedCar.promotional_text,
+        updatedCar.promotional_text ?? "",
     ];
 
     try {

@@ -5,7 +5,7 @@ export type Car = {
     model: string;
     price_per_day: number;
     electric: boolean;
-    promotional_text: string;
+    promotional_text?: string;
 };
 
 export type CarImage = {
