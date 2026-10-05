@@ -1,4 +1,4 @@
-import { Button, Card, Divider, List, Text, } from 'react-native-paper'
+import { ActivityIndicator, Button, Card, Dialog, Divider, Icon, List, Portal, Text, } from 'react-native-paper'
 import { Alert, Image, ScrollView, StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import { CarsTabScreenProps } from '../navigation/types'
@@ -10,6 +10,14 @@ import { formatDate, toDbDate } from '../utils/datehelper'
 import { useAuth } from '../auth/authContent'
 
 type CheckoutProps = CarsTabScreenProps<'Checkout'>
+
+// Made-up delays, so the payment feels like it is being processed
+const PAYMENT_PROCESSING_MS = 1500
+const PAYMENT_SUCCESS_MS = 1200
+
+type PaymentState = 'idle' | 'processing' | 'success'
+
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F5F5' },
@@ -39,6 +47,11 @@ const styles = StyleSheet.create({
         paddingTop: 16,
         paddingBottom: 8,
     },
+    paymentContent: {
+        alignItems: 'center',
+        gap: 16,
+        paddingVertical: 24,
+    },
 })
 
 export default function Checkout({ route, navigation }: CheckoutProps) {
@@ -58,6 +71,7 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
     const total = carPrice * days
     const { isLoggedIn, isVerified } = useAuth();
     const canBook = isLoggedIn && isVerified;
+    const [payment, setPayment] = useState<PaymentState>('idle');
 
     // Set when the user is sent to log in / verify, so we can bring them back afterwards
     const [returnAfterAuth, setReturnAfterAuth] = useState(false);
@@ -168,7 +182,7 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
                 <Button
                     mode="contained"
                     onPress={() => book()}
-                    disabled={!canBook}
+                    disabled={!canBook || payment !== 'idle'}
                 >
                     Book {carName}
                 </Button>
@@ -180,6 +194,22 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
                     Cancel
                 </Button>
             </ScrollView>
+
+            <Portal>
+                {/* Not dismissable, so the user can't close it in the middle of a payment */}
+                <Dialog visible={payment !== 'idle'} dismissable={false}>
+                    <Dialog.Content style={styles.paymentContent}>
+                        {payment === 'processing' ? (
+                            <ActivityIndicator size="large" />
+                        ) : (
+                            <Icon source="check-circle" size={56} color="#2e7d32" />
+                        )}
+                        <Text variant="titleMedium">
+                            {payment === 'processing' ? 'Processing payment...' : 'Payment successful'}
+                        </Text>
+                    </Dialog.Content>
+                </Dialog>
+            </Portal>
         </View>
     )
 
@@ -196,18 +226,25 @@ export default function Checkout({ route, navigation }: CheckoutProps) {
         }
 
         console.log('booking attempt', newBooking)
+        setPayment('processing')
         try {
+            await wait(PAYMENT_PROCESSING_MS)
             const result = await addBookingIfAvailable(db, newBooking)
             console.log('booking result', result)
             console.log('rows after insert', await getBookings(db))
             if (result === false) {
+                setPayment('idle')
                 Alert.alert('Not available', 'This car is already booked for those dates.')
                 return
             }
+            setPayment('success')
+            await wait(PAYMENT_SUCCESS_MS)
+            setPayment('idle')
             navigation.popToTop() // reset the Search stack before leaving it
             navigation.navigate('BookingsTab', { screen: 'Bookings' })
         } catch (e) {
             console.error('booking failed', e)
+            setPayment('idle')
             Alert.alert('Booking failed', String(e))
         }
     }
