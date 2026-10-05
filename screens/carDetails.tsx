@@ -97,28 +97,28 @@ export default function CarDetails({ route, navigation }: Props) {
                     right={props => <Text variant="bodyMedium" style={props.style}>{formatDate(dateRange.endDate)}</Text>}
                 />
 
-                <Button
-                    mode="outlined"
-                    icon="calendar"
-                    style={{ marginTop: windowHeight * 0.01 }}
-                    onPress={() => setDatePickerModalVisible(true)}
-                >
-                    Change dates
-                </Button>
+                <View style={{gap: 16}}>
+                    <Button
+                        mode="outlined"
+                        icon="calendar"
+                        onPress={() => setDatePickerModalVisible(true)}
+                    >
+                        Change dates
+                    </Button>
 
-                <Button
-                    mode="contained"
-                    icon="car-key"
-                    style={{ marginTop: windowHeight * 0.03 }}
-                    onPress={() => navigation.navigate('Checkout', {
-                        car,
-                        imageUrl,
-                        startDate: toDbDate(dateRange.startDate),
-                        endDate: toDbDate(dateRange.endDate),
-                    })}
-                >
-                    Book
-                </Button>
+                    <Button
+                        mode="contained"
+                        icon="car-key"
+                        onPress={() => navigation.navigate('Checkout', {
+                            car,
+                            imageUrl,
+                            startDate: toDbDate(dateRange.startDate),
+                            endDate: toDbDate(dateRange.endDate),
+                        })}
+                    >
+                        Book
+                    </Button>
+                </View>
 
                 <DatePickerModal
                     locale="en"
