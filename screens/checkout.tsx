@@ -36,7 +36,9 @@ const styles = StyleSheet.create({
         marginRight: 16,
     },
     info: {
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        width: '60%',
     },
     totalRow: {
         flexDirection: 'row',
